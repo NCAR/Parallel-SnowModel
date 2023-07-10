@@ -1,0 +1,55 @@
+
+# DEBUGGER NOTES
+#
+# pgf77 debugger:
+#   for segmentation fault
+#   pgf77 -g fname.f
+#
+#   for floating point exception (like a NAN or divide by zero)
+#   pgf77 -g -Ktrap=fp fname.f
+#
+#   pgdbg -dbx -text a.out (or snowmodel)
+#   run
+#   print i
+#   print var(i)
+#   quit
+#
+# gfortran debugger:
+#   for segmentation fault
+#   gfortran -g fname.f
+#
+#   for floating point exception (like a NAN or divide by zero)
+#   gfortran -g -ftrap=%all fname.f, or
+#   gfortran -g -ftrap=common fname.f
+#
+#   gdb a.out
+#   catch FPE (for floating point exception)
+#   run
+#   print i
+#   print var(i)
+#   quit
+
+path=./
+
+filename1=enbal_code.f90
+filename2=micromet_code.f90
+filename3=preprocess_code.f
+filename4=readparam_code.f90
+filename5=snowmodel_main.f90
+filename6=snowpack_code.f90
+filename7=snowtran_code.f90
+filename8=dataassim_user.f
+filename9=outputs_user.f
+filename10=snowmodel_inc.f90
+filename11=snowmodel_vars.f90
+filename12=caf_module.f90
+
+caf -g -fbounds-check -fbacktrace -finit-real=nan -ffree-line-length-none -ffpe-trap=invalid -mcmodel=medium -I$path -O3 -o ../sm_parallel_nonetcdf $path$filename10 $path$filename11 $path$filename12 $path$filename1 $path$filename2 $path$filename3 $path$filename4 $path$filename5 $path$filename6 $path$filename7 $path$filename8 $path$filename9
+
+#pgf77 -g -Ktrap=fp -mcmodel=medium -o ../snowmodel snowmodel_main.f snowtran_code.f micromet_code.f readparam_code.f preprocess_code.f enbal_code.f snowpack_code.f outputs_user.f dataassim_user.f
+
+#f77 -g -ftrap=common -o ../snowmodel snowmodel_main.f snowtran_code.f micromet_code.f readparam_code.f preprocess_code.f enbal_code.f snowpack_code.f outputs_user.f precipfactor_user.f
+
+#g77 -O3 -I$path1 -Wuninitialized -Wsurprising -Wunused -o ../snowmodel $path1$filename1 $path1$filename2 $path1$filename3 $path1$filename4 $path1$filename5 $path1$filename6 $path1$filename7 $path2$filename8 $path2$filename9
+
+rm snowmodel_main.o snowtran_code.o micromet_code.o readparam_code.o preprocess_code.o enbal_code.o snowpack_code.o outputs_user.o dataassim_user.o *.mod
