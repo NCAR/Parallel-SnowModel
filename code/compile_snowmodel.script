@@ -29,28 +29,103 @@
 #   print var(i)
 #   quit
 
+## -------- BEGIN SCRIPTING TO PULL GITHUB VERSION INFORMATION -------- ##
+
+# checks if branch has something pending
+function parse_git_dirty() {
+  git diff --quiet --ignore-submodules HEAD 2>/dev/null; [ $? -eq 1 ] && echo "*"
+}
+
+# gets the current git branch
+function parse_git_branch() {
+  git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e "s/* \(.*\)/\1$(parse_git_dirty)/"
+}
+
+# get last commit hash prepended with @ (i.e. @8a323d0)
+function parse_git_hash() {
+  git rev-parse --short HEAD 2> /dev/null | sed "s/\(.*\)/@\1/"
+}
+
+# string splicing for github branch name and github hash commit
+HASH_STRING=$(parse_git_hash)
+BRANCH_STRING=$(parse_git_branch)
+HASH_STRING="${HASH_STRING:1}"
+BRANCH_STRING="${BRANCH_STRING::-1}"
+
+# for conditions where code base is not in github directory set to NA #
+[[ ! -z "$HASH_STRING" ]] || HASH_STRING='NA'
+[[ ! -z "$BRANCH_STRING" ]] || BRANCH_STRING='NA'
+
+cat > git_version.f90 << EOL
+module git_version
+  implicit none
+  public
+  character(len=*),parameter :: git_branch = '${BRANCH_STRING}'
+  character(len=*),parameter :: git_hash = '${HASH_STRING}'
+end module
+EOL
+## -------------------------------------------------------------------- ##
+
 path=./
 
 filename1=enbal_code.f90
 filename2=micromet_code.f90
-filename3=preprocess_code.f
+filename3=preprocess_code.f90
 filename4=readparam_code.f90
 filename5=snowmodel_main.f90
 filename6=snowpack_code.f90
 filename7=snowtran_code.f90
-filename8=dataassim_user.f
-filename9=outputs_user.f
-filename10=snowmodel_inc.f90
+filename8=dataassim_user.f90
+filename9=outputs_user.f90
 filename11=snowmodel_vars.f90
 filename12=caf_module.f90
-filename13=outputs_parallel.f
+filename14=serial_module.f90
+filename15=netcdf_module.f90
+filename16=nonetcdf_module.f90
+filename17=git_version.f90
 
-caf -g -fbounds-check -fbacktrace -finit-real=nan -ffree-line-length-none -ffpe-trap=invalid -mcmodel=medium -I$path -O3 -o ../sm_parallel_nonetcdf $path$filename10 $path$filename11 $path$filename12 $path$filename1 $path$filename2 $path$filename3 $path$filename4 $path$filename5 $path$filename6 $path$filename7 $path$filename8 $path$filename9 $path$filename13
 
+# ------------ SERIAL GFORTRAN COMPILATION - RECOMMENDED ------------ #
+
+## GFORTRAN EXECUTABLE - SERIAL WITH NETCDF ##
+gfortran -L/glade/u/apps/ch/opt/netcdf/4.7.3/gnu/9.1.0/lib -lnetcdff -L/glade/u/apps/ch/opt/netcdf/4.7.3/gnu/9.1.0//lib -Wl,--disable-new-dtags -lnetcdf -lnetcdf -ldl -lm -I/glade/u/apps/ch/opt/netcdf/4.7.3/gnu/9.1.0/include -cpp -DSERIAL -DNETCDF -g -fcheck=all -ffree-line-length-none -Wall -O3 -o ../sm_serial_netcdf $path$filename11 $path$filename17 $path$filename14 $path$filename15 $path$filename1 $path$filename2 $path$filename3 $path$filename4 $path$filename5 $path$filename6 $path$filename7 $path$filename8 $path$filename9
+
+## GFORTRAN EXECUTABLE - SERIAL WITHOUT NETCDF ##
+gfortran  -Wl,--disable-new-dtags -ldl -lm -cpp -DSERIAL -DNO_NETCDF -g -fcheck=all -ffree-line-length-none -Wall -O3 -o ../sm_serial_nonetcdf $path$filename11 $path$filename17 $path$filename14 $path$filename16 $path$filename15 $path$filename1 $path$filename2 $path$filename3 $path$filename4 $path$filename5 $path$filename6 $path$filename7 $path$filename8 $path$filename9
+# ------------------------------------------------------------------- #
+
+# ------------ OTHER SERIAL FORTRAN COMPILATION ------------ #
+
+## PORTLAND GROUP EXECUTABLE - SERIAL ##
 #pgf77 -g -Ktrap=fp -mcmodel=medium -o ../snowmodel snowmodel_main.f snowtran_code.f micromet_code.f readparam_code.f preprocess_code.f enbal_code.f snowpack_code.f outputs_user.f dataassim_user.f
 
 #f77 -g -ftrap=common -o ../snowmodel snowmodel_main.f snowtran_code.f micromet_code.f readparam_code.f preprocess_code.f enbal_code.f snowpack_code.f outputs_user.f precipfactor_user.f
 
 #g77 -O3 -I$path1 -Wuninitialized -Wsurprising -Wunused -o ../snowmodel $path1$filename1 $path1$filename2 $path1$filename3 $path1$filename4 $path1$filename5 $path1$filename6 $path1$filename7 $path2$filename8 $path2$filename9
+# ------------------------------------------------------------------- #
 
-rm snowmodel_main.o snowtran_code.o micromet_code.o readparam_code.o preprocess_code.o enbal_code.o snowpack_code.o outputs_user.o dataassim_user.o *.mod
+# ------------ PARALLEL GFORTRAN COMPILATION - RECOMMENDED ------------ #
+
+## COARRAY GFORTRAN EXECUTABLE - PARALLEL WITH NETCDF ##
+caf -L/glade/u/apps/ch/opt/netcdf/4.7.3/gnu/9.1.0/lib -lnetcdff -Wl,--disable-new-dtags -lnetcdf -lnetcdf -ldl -lm -I/glade/u/apps/ch/opt/netcdf/4.7.3/gnu/9.1.0/include -cpp -DCAF -DNETCDF -g -fbounds-check -fbacktrace -finit-real=nan -ffree-line-length-none -ffpe-trap=invalid -mcmodel=medium -I$path -O3 -o ../sm_parallel_netcdf $path$filename11 $path$filename17 $path$filename12 $path$filename14 $path$filename15 $path$filename16 $path$filename1 $path$filename2 $path$filename3 $path$filename4 $path$filename5 $path$filename6 $path$filename7 $path$filename8 $path$filename9
+
+## COARRAY GFORTRAN EXECUTABLE - PARALLEL WITHOUT NETCDF ##
+caf -Wl,--disable-new-dtags -ldl -lm -cpp -DCAF -DNO_NETCDF -g -fbounds-check -fbacktrace -finit-real=nan -ffree-line-length-none -ffpe-trap=invalid -mcmodel=medium -I$path -O3 -o ../sm_parallel_nonetcdf $path$filename11 $path$filename17 $path$filename12 $path$filename14 $path$filename16 $path$filename1 $path$filename2 $path$filename3 $path$filename4 $path$filename5 $path$filename6 $path$filename7 $path$filename8 $path$filename9
+# ------------------------------------------------------------------- #
+
+# ------------ OTHER PARALLEL COMPILATION ------------ #
+## COARRAY INTEL EXECUTABLE - PARALLEL ##
+#mpif90 -L/glade/u/apps/ch/opt/netcdf/4.8.0/intel/2021.2/lib -lnetcdff -I /glade/u/apps/ch/opt/netcdf/4.8.0/intel/2021.2/include -cpp -DCAF -g -coarray=distributed -coarray-num-images=36 -I$path -o ../snowmodel_conus_intel $path$filename11 $path$filename17 $path$filename12 $path$filename14 $path$filename15 $path$filename1 $path$filename2 $path$filename3 $path$filename4 $path$filename5 $path$filename6 $path$filename7 $path$filename8 $path$filename9
+
+## OPTIMIZED COARRAY ##
+#caf -cpp -DCAF -O3 -ffree-line-length-none -mcmodel=medium -I$path -o ../snowmodel_conus $path$filename11 $path$filename17 $path$filename12 $path$filename14 $path$filename1 $path$filename2 $path$filename3 $path$filename4 $path$filename5 $path$filename6 $path$filename7 $path$filename8 $path$filename9
+# ------------------------------------------------------------------- #
+
+# --------------------- REMOVE UNNECESSARY FILES -------------------- #
+## remove *.o files ##
+rm snowmodel_main.o snowtran_code.o micromet_code.o readparam_code.o preprocess_code.o enbal_code.o snowpack_code.o outputs_user.o dataassim_user.o 
+## remove *.mod files ##
+rm *.mod
+## remove git_version.f90 as it is not part of the original code ##
+rm git_version.f90
+

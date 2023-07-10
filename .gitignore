@@ -1,11 +1,4 @@
-snowmodel
 *~
 *.o
 *.mod
 .ipynb_checkpoints
-sm_parallel_nonetcdf
-sm_serial_nonetcdf
-sm_parallel_netcdf
-sm_serial_netcdf
-sm_157ee56
-sm_fbeb634
