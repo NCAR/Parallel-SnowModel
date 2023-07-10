@@ -37,7 +37,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &  output_path_wo_assim,output_path_wi_assim,nrecs_max,
      &  tabler_sfc_path_name,print_outvars,diam_layer)
 
-      use caf_module, only: l_ny, max_l_ny
+      use caf_module, only:l_ny,max_l_ny,global_map,me,prefix_sum
+      use caf_module, only: single_scatter_double,single_scatter
+
+      use snowmodel_vars, only: l_xg_line, l_yg_line
 
       implicit none
 
@@ -60,46 +63,46 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &  snowmodel_line_flag,print_user,print_inc,xhour_init,
      &  Tabler_1_flag,Tabler_2_flag
 
-      real topo_land(nx,ny)
-      real topo(nx,ny)
-      real vegtype(nx,ny)
-      real xlat_grid(nx,ny)
-      real xlon_grid(nx,ny)
+      real topo_land(nx,max_l_ny)
+      real topo(nx,max_l_ny)
+      real vegtype(nx,max_l_ny)
+      real xlat_grid(nx,max_l_ny)
+      real xlon_grid(nx,max_l_ny)
 
-      real snow_d(nx,ny)
-      real snow_depth(nx,ny)
-      real snow_d_init(nx,ny)
-      real canopy_int(nx,ny)
-      real swe_depth_old(nx,ny)
-      real canopy_int_old(nx,ny)
+      real snow_d(nx,max_l_ny)
+      real snow_depth(nx,max_l_ny)
+      real snow_d_init(nx,max_l_ny)
+      real canopy_int(nx,max_l_ny)
+      real swe_depth_old(nx,max_l_ny)
+      real canopy_int_old(nx,max_l_ny)
 
-      real sum_sprec(nx,ny)
-      real sum_qsubl(nx,ny)
-      real sum_trans(nx,ny)
-      real sum_unload(nx,ny)
-      real soft_snow_d(nx,ny)
-      real ro_soft_snow_old(nx,ny)
-      real ro_snow_grid(nx,ny)
-      real swe_depth(nx,ny)
-      real sum_prec(nx,ny)
-      real sum_runoff(nx,ny)
-      real sum_Qcs(nx,ny)
-      real sum_glacmelt(nx,ny)
-      real sum_swemelt(nx,ny)
-      real sum_d_canopy_int(nx,ny)
-      real sum_sfcsublim(nx,ny)
+      real sum_sprec(nx,max_l_ny)
+      real sum_qsubl(nx,max_l_ny)
+      real sum_trans(nx,max_l_ny)
+      real sum_unload(nx,max_l_ny)
+      real soft_snow_d(nx,max_l_ny)
+      real ro_soft_snow_old(nx,max_l_ny)
+      real ro_snow_grid(nx,max_l_ny)
+      real swe_depth(nx,max_l_ny)
+      real sum_prec(nx,max_l_ny)
+      real sum_runoff(nx,max_l_ny)
+      real sum_Qcs(nx,max_l_ny)
+      real sum_glacmelt(nx,max_l_ny)
+      real sum_swemelt(nx,max_l_ny)
+      real sum_d_canopy_int(nx,max_l_ny)
+      real sum_sfcsublim(nx,max_l_ny)
 
       real vegsnowdepth(nvegtypes)
-      real veg_z0(nx,ny)
-      real vegsnowd_xy(nx,ny)
+      real veg_z0(nx,max_l_ny)
+      real vegsnowd_xy(nx,max_l_ny)
 
-      real curve_wt_lg(nx,ny)
+      real curve_wt_lg(nx,max_l_ny)
 
       real corr_factor(nx_max,ny_max,max_obs_dates+1)
       integer icorr_factor_index(max_time_steps)
-      integer icorr_factor_loop
+      integer icorr_factor_loop,byte_index
 
-      integer k_stn(nx,ny,9)
+      integer k_stn(nx,max_l_ny,9)
       double precision xmn,ymn
       double precision nrecs_max,nrecs
       real deltax,deltay
@@ -121,8 +124,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       character*1 print_var(n_print_vars)
       character*4 print_outvars(n_print_vars)
 
-      integer KK(nx,ny)
-      real tslsnowfall(nx,ny)
+      integer KK(nx,max_l_ny)
+      real tslsnowfall(nx,max_l_ny)
       real tsls_threshold
       real snod_layer(nx,max_l_ny,nz_max)
       real swed_layer(nx,max_l_ny,nz_max)
@@ -131,13 +134,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real gamma(nx,max_l_ny,nz_max)
       real diam_layer(nx,max_l_ny,nz_max)
 
-      real cf_precip(nx,ny)
+      real cf_precip(nx,max_l_ny)
       real cf_precip_flag,cf_precip_scalar
 
       integer ipath_length,i_len_wo,i_len_wi,trailing_blanks
       character*80 vege_ht_fname
 
-      integer nyears,nyear,nobs_total,nobs_dates,nstns,krec
+      integer nyears,nyear,nobs_total,nobs_dates,nstns,krec, new_j
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -262,10 +265,15 @@ c Read in the topography array.
       if (ascii_topoveg.eq.0.0) then
 
         open (unit=37,file=topoveg_fname,
-     &    form='unformatted',access='direct',recl=4*nx*ny)
-        read (37,rec=1) ((topo_land(i,j),i=1,nx),j=1,ny)
+     &    form='unformatted',access='stream')
+        byte_index = (4*prefix_sum(me)*nx)+1
+        read (37,pos=byte_index) ((topo_land(i,j),i=1,nx),j=1,l_ny)
+!        open (unit=37,file=topoveg_fname,
+!     &    form='unformatted',access='direct',recl=4*nx*ny)
+!        read (37,rec=1) ((topo_land(i,j),i=1,nx),j=1,ny)
 
       elseif (ascii_topoveg.eq.1.0) then
+        print*,"HAVEN'T IMPLEMENTED PARALLEL INPUT FOR ASCII!"
 
 c Read off the header lines.  I will assume that all of this
 c   information was input in the .par file correctly.
@@ -284,30 +292,33 @@ c Read the data in as real numbers, and do the yrev.
 c If vegetation data is not available on the topography grid,
 c   define the vegetation to be constant.
       if (const_veg_flag.ne.0.0) then
-        do i=1,nx
-          do j=1,ny
-            vegtype(i,j) = const_veg_flag
+          do i=1,nx
+            do j=1,l_ny
+              vegtype(i,j) = const_veg_flag
+            enddo
           enddo
-        enddo
 
 c Read in the vegetation array.
       else
 
         if (ascii_topoveg.eq.0.0) then
-          read (37,rec=2) ((vegtype(i,j),i=1,nx),j=1,ny)
+          byte_index = (nx*ny*4)+(4*prefix_sum(me)*nx)+1
+          read (37,pos=byte_index) ((vegtype(i,j),i=1,nx),j=1,l_ny)
+!          read (37,rec=2) ((vegtype(i,j),i=1,nx),j=1,ny)
 
         elseif (ascii_topoveg.eq.1.0) then
+          print*,"HAVEN'T IMPLEMENTED PARALLEL INPUT FOR ASCII!"
 
 c Read off the header lines.  I will assume that all of this
 c   information was input in the .par file correctly.
-          open (38,file=veg_ascii_fname,form='formatted')
-          do k=1,iheader
-            read (38,*)
-          enddo
+            open (38,file=veg_ascii_fname,form='formatted')
+            do k=1,iheader
+              read (38,*)
+            enddo
 c Read the data in as real numbers, and do the yrev.
-          do j=ny,1,-1
-            read (38,*) (vegtype(i,j),i=1,nx)
-          enddo
+            do j=ny,1,-1
+              read (38,*) (vegtype(i,j),i=1,nx)
+            enddo
 
         endif
 
@@ -315,14 +326,19 @@ c Read the data in as real numbers, and do the yrev.
 
 c Now that we have read in the topo and veg data arrays, check
 c   whether all of the values look like valid numbers.
+!      if (me == 0) then
+        do i=1,nx
+          do j=1,l_ny
+            if (vegtype(i,j).lt.1.0 .or. vegtype(i,j).gt.30.0) then
+              print *, 'Found Invalid Vegetation-Type Value'
+              print *, '     Value =',vegtype(i,j),'  at ',i,j
+              stop
+            endif
+          enddo
+        enddo
+!      endif
       do i=1,nx
-        do j=1,ny
-          if (vegtype(i,j).lt.1.0 .or. vegtype(i,j).gt.30.0) then
-            print *, 'Found Invalid Vegetation-Type Value'
-            print *, '     Value =',vegtype(i,j),'  at ',i,j
-            stop
-          endif
-
+        do j=1,l_ny
           if (topo_land(i,j).lt.0.0 .or. topo_land(i,j).gt.9000.0) then
             print *, 'Found Invalid Topography Value'
             print *, '     Value =',topo_land(i,j),'  at ',i,j
@@ -356,12 +372,19 @@ c Find the last occurance of '/' in the topo_vege path.
         vege_ht_fname =
      &    topoveg_fname(1:ipath_length)//'veg_ht.gdat'
 
-        open (191,file=vege_ht_fname,
-     &    form='unformatted',access='direct',recl=4*nx*ny)
-        read (191,rec=1) ((vegsnowd_xy(i,j),i=1,nx),j=1,ny)
-        close(191)
+!        if (me == 0) then
+          open (191,file=vege_ht_fname,
+     &    form='unformatted',access='stream')
+          byte_index = (4*prefix_sum(me)*nx)+1
+          read (191,pos=byte_index) ((vegsnowd_xy(i,j),i=1,nx),j=1,l_ny)
+!          open (191,file=vege_ht_fname,
+!     &    form='unformatted',access='direct',recl=4*nx*ny)
+!          read (191,rec=1) ((vegsnowd_xy(i,j),i=1,nx),j=1,ny)
+          close(191)
+!        endif
 
       elseif (iveg_ht_flag.eq.1) then
+        print*,"HAVEN'T IMPLEMENTED PARALLEL INPUT FOR ASCII!"
 
 c Find the last occurance of '/' in the veg_ascii_fname path.
         ipath_length = 0
@@ -385,19 +408,21 @@ c Find the last occurance of '/' in the veg_ascii_fname path.
           read (191,*)
         enddo
 c Read the data in as real numbers, and do the yrev.
-        do j=ny,1,-1
-          read (191,*) (vegsnowd_xy(i,j),i=1,nx)
-        enddo
-        close(191)
+        if (me == 0) then
+          do j=ny,1,-1
+            read (191,*) (vegsnowd_xy(i,j),i=1,nx)
+          enddo
+          close(191)
+        endif
 
       elseif (iveg_ht_flag.eq.0) then
 
-        do i=1,nx
-          do j=1,ny
-            nveg = nint(vegtype(i,j))
-            vegsnowd_xy(i,j) = vegsnowdepth(nveg)
+          do i=1,nx
+            do j=1,l_ny
+              nveg = nint(vegtype(i,j))
+              vegsnowd_xy(i,j) = vegsnowdepth(nveg)
+            enddo
           enddo
-        enddo
 
       endif
 
@@ -407,7 +432,8 @@ c   really only used when there is no blowing snow, and thus have
 c   no impact on the simulation except to provide a non-zero value
 c   for any such parts of the domain.
       do i=1,nx
-        do j=1,ny
+        do j=1,l_ny
+!         new_j = global_map(j)
           veg_z0(i,j) = 0.25 * vegsnowd_xy(i,j)
         enddo
       enddo
@@ -415,10 +441,14 @@ c   for any such parts of the domain.
 c Read in the large-scale curvature weighting array, if the run
 c   requires it.
       if (curve_lg_scale_flag.eq.1.0) then
-        open (444,file='extra_met/large_curvature_wt.gdat',
-     &    form='unformatted',access='direct',recl=4*nx*ny)
-        read (444,rec=1) ((curve_wt_lg(i,j),i=1,nx),j=1,ny)
-        close (444)
+!          open (444,file='extra_met/large_curvature_wt.gdat',
+!     &    form='unformatted',access='direct',recl=4*nx*ny)
+!          read (444,rec=1) ((curve_wt_lg(i,j),i=1,nx),j=1,ny)
+          open (444,file='extra_met/large_curvature_wt.gdat',
+     &    form='unformatted',access='stream')
+          byte_index = (4*prefix_sum(me)*nx)+1
+          read (444,pos=byte_index) ((curve_wt_lg(i,j),i=1,nx),j=1,l_ny)
+          close (444)
       endif
 
 c If this is a sea ice run, open the sea ice concentration file.
@@ -598,24 +628,28 @@ c   equal 1.0.
 
 c Read or build the latitude array that will be used to do the
 c   latitude weighting when calculating incoming solar radiation.
-      if (lat_solar_flag.eq.-1) then
+      if (lat_solar_flag.eq.-1) then !Only has the ability to read parallel from binary right now
 
         open (91,file='extra_met/grid_lat.gdat',
-     &    form='unformatted',access='direct',recl=4*nx*ny)
-        read (91,rec=1) ((xlat_grid(i,j),i=1,nx),j=1,ny)
+     &    form='unformatted',access='stream')
+        byte_index = (4*prefix_sum(me)*nx)+1
+        read (91,pos=byte_index) ((xlat_grid(i,j),i=1,nx),j=1,l_ny)
         close(91)
 
-      elseif (lat_solar_flag.eq.1) then
+      elseif ((lat_solar_flag.eq.1) .and. (me==0)) then
+        print*,"HAVEN'T IMPLEMENTED PARALLEL INPUT FOR ASCII!"
 
         open (91,file='extra_met/grid_lat.asc',form='formatted')
         iheader = 6
-        do k=1,iheader
-          read (91,*)
-        enddo
+        if (me==0) then
+          do k=1,iheader
+            read (91,*)
+          enddo
 c Read the data in as real numbers, and do the yrev.
-        do j=ny,1,-1
-          read (91,*) (xlat_grid(i,j),i=1,nx)
-        enddo
+          do j=ny,1,-1
+            read (91,*) (xlat_grid(i,j),i=1,nx)
+          enddo
+        endif
         close(91)
 
       elseif (lat_solar_flag.eq.0) then
@@ -632,7 +666,7 @@ c   solar radiation differences from south to north.
         endif
 
         do i=1,nx
-          do j=1,ny
+          do j=1,l_ny
             xlat_grid(i,j) = xlat
           enddo
         enddo
@@ -642,23 +676,30 @@ c   solar radiation differences from south to north.
 c Read or build the longitude array that will be used to do the
 c   longitude influence when calculating incoming solar radiation.
       if (UTC_flag.eq.-1.0) then
+        print*,"HAVEN'T IMPLEMENTED PARALLEL INPUT FOR ASCII!"
 
         open (91,file='extra_met/grid_lon.gdat',
-     &    form='unformatted',access='direct',recl=4*nx*ny)
-        read (91,rec=1) ((xlon_grid(i,j),i=1,nx),j=1,ny)
+     &    form='unformatted',access='stream')
+!        open (91,file='extra_met/grid_lon.gdat',
+!     &    form='unformatted',access='direct',recl=4*nx*ny)
+        byte_index = (4*prefix_sum(me)*nx)+1
+!        read (91,rec=1) ((xlon_grid(i,j),i=1,nx),j=1,ny)
+        read (91,pos=byte_index) ((xlon_grid(i,j),i=1,nx),j=1,l_ny)
         close(91)
 
       elseif (UTC_flag.eq.1.0) then
 
         open (91,file='extra_met/grid_lon.asc',form='formatted')
         iheader = 6
-        do k=1,iheader
-          read (91,*)
-        enddo
+        if (me==0) then
+          do k=1,iheader
+            read (91,*)
+          enddo
 c Read the data in as real numbers, and do the yrev.
-        do j=ny,1,-1
-          read (91,*) (xlon_grid(i,j),i=1,nx)
-        enddo
+          do j=ny,1,-1
+            read (91,*) (xlon_grid(i,j),i=1,nx)
+          enddo
+        endif
         close(91)
 
       elseif (UTC_flag.eq.0.0) then
@@ -698,7 +739,7 @@ c   valid data.
 
 c If the concatenated configuration of the model is used, read
 c   in the x and y coordinates for the concatenated grid cells.
-      if (snowmodel_line_flag.eq.1.0) then
+      if ((snowmodel_line_flag.eq.1.0).and.(me==0)) then
         open (1331,file='extra_met/snowmodel_line_pts.dat')
         do j=1,ny
           do i=1,nx
@@ -726,8 +767,15 @@ c   nearest-station indexing array.
           print *,'invalid n_stns_used value'
           stop
         endif
-        call get_nearest_stns_1(nx,ny,xmn,ymn,deltax,deltay,
-     &    n_stns_used,k_stn,snowmodel_line_flag,xg_line,yg_line)
+        if (snowmodel_line_flag.eq.1.0) then
+          call single_scatter_double(xg_line,l_xg_line)
+          call single_scatter_double(yg_line,l_yg_line)
+          call get_nearest_stns_1(nx,ny,xmn,ymn,deltax,deltay,
+     &    n_stns_used,k_stn,snowmodel_line_flag,l_xg_line,l_yg_line)
+        else
+          call get_nearest_stns_1(nx,ny,xmn,ymn,deltax,deltay,
+     &    n_stns_used,k_stn,snowmodel_line_flag,l_xg_line,l_yg_line)
+        endif
       endif
 
 c If this is a history restart run, advance the micromet input
@@ -939,41 +987,51 @@ c   For Multi-Layer SnowPack.
       endif
 
 c Read in the precipitation correction factor array.
-      if (cf_precip_flag.eq.1.0) then
+!      if (me == 0) then
+        if (cf_precip_flag.eq.1.0) then
 
-        open (unit=144,file='precip_cf/cf_precip.gdat',
-     &    form='unformatted',access='direct',recl=4*nx*ny)
-        read (144,rec=1) ((cf_precip(i,j),i=1,nx),j=1,ny)
+          open (unit=144,file='precip_cf/cf_precip.gdat',
+     &    form='unformatted',access='stream')
+          byte_index = (4*prefix_sum(me)*nx)+1
+          read (144,pos=byte_index) ((cf_precip(i,j),i=1,nx),j=1,l_ny)
+!          open (unit=144,file='precip_cf/cf_precip.gdat',
+!     &    form='unformatted',access='direct',recl=4*nx*ny)
+!          read (144,rec=1) ((cf_precip(i,j),i=1,nx),j=1,ny)
 
-      elseif (cf_precip_flag.eq.2.0) then
+        elseif (cf_precip_flag.eq.2.0) then
+          print*,"HAVEN'T IMPLEMENTED PARALLEL INPUT FOR ASCII!"
 
 c Read off the header lines.  I will assume that all of this
 c   information was input in the .par file correctly.
-        open (144,file='precip_cf/cf_precip.asc',form='formatted')
-        iheader = 6
-        do k=1,iheader
-          read (144,*)
-        enddo
-c Read the data in as real numbers, and do the yrev.
-        do j=ny,1,-1
-          read (144,*) (cf_precip(i,j),i=1,nx)
-        enddo
-
-      elseif (cf_precip_flag.eq.3.0) then
-
-        open (144,file='precip_cf/cf_precip.dat',form='formatted')
-        read (144,*) cf_precip_scalar
-        do j=1,ny
-          do i=1,nx
-            cf_precip(i,j) = cf_precip_scalar
+          open (144,file='precip_cf/cf_precip.asc',form='formatted')
+          iheader = 6
+          do k=1,iheader
+            read (144,*)
           enddo
-        enddo
+c Read the data in as real numbers, and do the yrev.
+          do j=ny,1,-1
+            read (144,*) (cf_precip(i,j),i=1,nx)
+          enddo
 
-      endif
+        elseif (cf_precip_flag.eq.3.0) then
+          print*,"HAVEN'T IMPLEMENTED PARALLEL INPUT FOR ASCII!"
+
+          open (144,file='precip_cf/cf_precip.dat',form='formatted')
+          read (144,*) cf_precip_scalar
+          do j=1,ny
+            do i=1,nx
+              cf_precip(i,j) = cf_precip_scalar
+            enddo
+          enddo
+
+        endif
+!      endif
 
 c This must be closed so it can be reread if there is a (second)
 c   data assimilation loop.
-      close (144)
+      if (me ==0) then
+        close (144)
+      endif
 
 c Generate all of the GrADS control (.ctl) files that correspond
 c   to all of the GrADS output (.gdat) files that were generated as
@@ -1027,41 +1085,41 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &  icorr_factor_index,KK,tslsnowfall,tsls_threshold,snod_layer,
      &  swed_layer,ro_layer,T_old,gamma,diam_layer)
 
-      use caf_module, only: l_ny, max_l_ny
+      use caf_module, only: l_ny, max_l_ny, global_map
 
       implicit none
 
       include 'snowmodel.inc'
 
-      integer i,j,nx,ny,ihrestart_flag,i_dataassim_loop,max_iter,k
+      integer i,j,nx,ny,ihrestart_flag,i_dataassim_loop,max_iter,k,new_j
 
       real topoflag,snow_d_init_const,ro_water,ro_snow
-      real sum_sprec(nx,ny)
-      real sum_qsubl(nx,ny)
-      real sum_trans(nx,ny)
-      real sum_unload(nx,ny)
+      real sum_sprec(nx,max_l_ny)
+      real sum_qsubl(nx,max_l_ny)
+      real sum_trans(nx,max_l_ny)
+      real sum_unload(nx,max_l_ny)
       real topo(nx,ny)
-      real topo_land(nx,ny)
-      real snow_d(nx,ny)
-      real snow_depth(nx,ny)
-      real soft_snow_d(nx,ny)
-      real ro_soft_snow_old(nx,ny)
-      real ro_snow_grid(nx,ny)
-      real swe_depth(nx,ny)
-      real sum_prec(nx,ny)
-      real sum_runoff(nx,ny)
-      real sum_Qcs(nx,ny)
-      real canopy_int(nx,ny)
-      real sum_glacmelt(nx,ny)
-      real sum_swemelt(nx,ny)
-      real sum_d_canopy_int(nx,ny)
-      real sum_sfcsublim(nx,ny)
-      real snow_d_init(nx,ny)
-      real swe_depth_old(nx,ny)
-      real canopy_int_old(nx,ny)
+      real topo_land(nx,max_l_ny)
+      real snow_d(nx,max_l_ny)
+      real snow_depth(nx,max_l_ny)
+      real soft_snow_d(nx,max_l_ny)
+      real ro_soft_snow_old(nx,max_l_ny)
+      real ro_snow_grid(nx,max_l_ny)
+      real swe_depth(nx,max_l_ny)
+      real sum_prec(nx,max_l_ny)
+      real sum_runoff(nx,max_l_ny)
+      real sum_Qcs(nx,max_l_ny)
+      real canopy_int(nx,max_l_ny)
+      real sum_glacmelt(nx,max_l_ny)
+      real sum_swemelt(nx,max_l_ny)
+      real sum_d_canopy_int(nx,max_l_ny)
+      real sum_sfcsublim(nx,max_l_ny)
+      real snow_d_init(nx,max_l_ny)
+      real swe_depth_old(nx,max_l_ny)
+      real canopy_int_old(nx,max_l_ny)
 
-      integer KK(nx,ny)
-      real tslsnowfall(nx,ny)
+      integer KK(nx,max_l_ny)
+      real tslsnowfall(nx,max_l_ny)
       real tsls_threshold
       real snod_layer(nx,max_l_ny,nz_max)
       real swed_layer(nx,max_l_ny,nz_max)
@@ -1088,7 +1146,7 @@ c Read in the saved data.
         endif
 
         do i=1,nx
-          do j=1,ny
+          do j=1,l_ny
 c Fill the summing arrays.
             sum_runoff(i,j) = 0.0
             sum_prec(i,j) = 0.0
@@ -1119,7 +1177,7 @@ c           canopy_int_old(i,j) = canopy_int(i,j)
       else
 
         do i=1,nx
-          do j=1,ny
+          do j=1,l_ny
 c Fill the summing arrays.
             sum_runoff(i,j) = 0.0
             sum_prec(i,j) = 0.0
@@ -1132,15 +1190,20 @@ c Fill the summing arrays.
             sum_swemelt(i,j) = 0.0
             sum_d_canopy_int(i,j) = 0.0
             sum_sfcsublim(i,j) = 0.0
+          enddo
+        enddo
 
 c Define the initial snow-depth distributions.
+        do i=1,nx
+          do j=1,l_ny
+            new_j = global_map(j)
             snow_d_init(i,j) = snow_d_init_const
             snow_d(i,j) = snow_d_init(i,j)
             snow_depth(i,j) = snow_d_init(i,j)
             canopy_int(i,j) = 0.0
             soft_snow_d(i,j) = snow_d(i,j)
             ro_snow_grid(i,j) = ro_snow
-            swe_depth(i,j) = snow_d(i,j) * ro_snow_grid(i,j) / ro_water
+            swe_depth(i,j)= snow_d(i,j)*ro_snow_grid(i,j)/ro_water
             ro_soft_snow_old(i,j) = 50.0
             swe_depth_old(i,j) = swe_depth(i,j)
             canopy_int_old(i,j) = canopy_int(i,j)
@@ -1167,13 +1230,15 @@ c Initialize the multi-layer snowpack arrays.
 
         if (topoflag.eq.1.0) then
           do i=1,nx
-            do j=1,ny
+            do j=1,l_ny
+!              new_j = global_map(j)
               topo(i,j) = topo_land(i,j) + snow_d(i,j)
             enddo
           enddo
         elseif (topoflag.eq.0.0) then
           do i=1,nx
-            do j=1,ny
+            do j=1,l_ny
+!              new_j = global_map(j)
               topo(i,j) = topo_land(i,j)
             enddo
           enddo
@@ -1470,6 +1535,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine get_nearest_stns_1(nx,ny,xmn,ymn,deltax,deltay,
      &  n_stns_used,k_stn,snowmodel_line_flag,xg_line,yg_line)
 
+      use caf_module, only: l_ny, max_l_ny, global_map
+
       implicit none
 
       include 'snowmodel.inc'
@@ -1477,14 +1544,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       double precision xstn(nstns_max)
       double precision ystn(nstns_max)
       double precision dsq(nstns_max)
-      double precision xg_line(nx,ny),yg_line(nx,ny)
+      double precision xg_line(nx,max_l_ny),yg_line(nx,max_l_ny)
       real snowmodel_line_flag
 
       double precision xg,yg,xmn,ymn,dist_min
       real deltax,deltay,x1,x2,x3,x4,x5,x6,x7
 
-      integer i,j,k,kk,nstns,n_stns_used,nx,ny,i1,i2,i3,i4
-      integer k_stn(nx,ny,9)
+      integer i,j,k,kk,nstns,n_stns_used,nx,ny,i1,i2,i3,i4,new_j
+      integer k_stn(nx,max_l_ny,9)
 
 c Read the station information for the first (and all) time step(s).
       read(20,*) nstns
@@ -1494,7 +1561,8 @@ c Read the station information for the first (and all) time step(s).
       enddo
       rewind (20)
 
-      do j=1,ny
+      do j=1,l_ny
+        new_j = global_map(j)
         do i=1,nx
 
 c xcoords of grid nodes at index i,j
@@ -1504,7 +1572,7 @@ c ycoords of grid nodes at index i,j
             yg = yg_line(i,j)
           else
             xg = xmn + deltax * (real(i) - 1.0)
-            yg = ymn + deltay * (real(j) - 1.0)
+            yg = ymn + deltay * (real(new_j) - 1.0)
           endif
 
 c Loop through all of the stations, calculating the distance

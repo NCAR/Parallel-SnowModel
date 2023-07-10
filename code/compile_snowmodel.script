@@ -43,8 +43,9 @@ filename9=outputs_user.f
 filename10=snowmodel_inc.f90
 filename11=snowmodel_vars.f90
 filename12=caf_module.f90
+filename13=outputs_parallel.f
 
-caf -g -fbounds-check -fbacktrace -finit-real=nan -ffree-line-length-none -ffpe-trap=invalid -mcmodel=medium -I$path -O3 -o ../sm_parallel_nonetcdf $path$filename10 $path$filename11 $path$filename12 $path$filename1 $path$filename2 $path$filename3 $path$filename4 $path$filename5 $path$filename6 $path$filename7 $path$filename8 $path$filename9
+caf -g -fbounds-check -fbacktrace -finit-real=nan -ffree-line-length-none -ffpe-trap=invalid -mcmodel=medium -I$path -O3 -o ../sm_parallel_nonetcdf $path$filename10 $path$filename11 $path$filename12 $path$filename1 $path$filename2 $path$filename3 $path$filename4 $path$filename5 $path$filename6 $path$filename7 $path$filename8 $path$filename9 $path$filename13
 
 #pgf77 -g -Ktrap=fp -mcmodel=medium -o ../snowmodel snowmodel_main.f snowtran_code.f micromet_code.f readparam_code.f preprocess_code.f enbal_code.f snowpack_code.f outputs_user.f dataassim_user.f
 

@@ -64,7 +64,7 @@ subroutine SNOWTRAN_CODE(bc_flag,bs_flag,C_z,&
 
   use caf_module, only: l_ny, max_l_ny, single_gather, single_scatter,&
        global_map, me
-  use snowmodel_vars, only: l_Utau,l_Utau_t,l_snow_d,l_topo_tmp, &
+  use snowmodel_vars, only: l_Utau,l_snow_d,l_topo_tmp, &
                           & l_dh_subgrid,l_Qsalt_v,l_vwind_grid,&
                           & l_Qsusp_v,l_ro_snow_grid,l_tabler_nn_orig,&
                           & l_tabler_ne_orig,l_tabler_nw_orig,l_tabler_ss_orig,&
@@ -95,14 +95,6 @@ subroutine SNOWTRAN_CODE(bc_flag,bs_flag,C_z,&
   real tabler_nw(nx,max_l_ny)
   real topo(nx,ny)
 
-  real tabler_nn_orig(nx,ny)
-  real tabler_ss_orig(nx,ny)
-  real tabler_ee_orig(nx,ny)
-  real tabler_ww_orig(nx,ny)
-  real tabler_ne_orig(nx,ny)
-  real tabler_se_orig(nx,ny)
-  real tabler_sw_orig(nx,ny)
-  real tabler_nw_orig(nx,ny)
   real topo_tmp(nx,ny)
 
   real uwind_grid(nx,max_l_ny),vwind_grid(nx,ny)
@@ -122,7 +114,7 @@ subroutine SNOWTRAN_CODE(bc_flag,bs_flag,C_z,&
   real ro_nsnow(nx,max_l_ny)
   real snow_d_init(nx,ny)
   real Utau(nx,ny)
-  real Utau_t(nx,ny)
+  real Utau_t(nx,max_l_ny)
   real z_0(nx,max_l_ny)
   real h_star(nx,max_l_ny)
   real conc_salt(nx,max_l_ny)
@@ -130,13 +122,13 @@ subroutine SNOWTRAN_CODE(bc_flag,bs_flag,C_z,&
   real Qsalt_max(nx,max_l_ny)
   real Qsalt_maxu(nx,max_l_ny),Qsalt_maxv(nx,max_l_ny)
   real Qsalt(nx,max_l_ny)
-  real Qsalt_u(nx,max_l_ny),Qsalt_v(nx,ny)
+  real Qsalt_u(nx,max_l_ny),Qsalt_v(nx,max_l_ny)
   real dh_salt(nx,max_l_ny)
   real dh_salt_u(nx,max_l_ny),dh_salt_v(nx,max_l_ny)
 
 
   real Qsusp(nx,max_l_ny)
-  real Qsusp_u(nx,max_l_ny),Qsusp_v(nx,ny)
+  real Qsusp_u(nx,max_l_ny),Qsusp_v(nx,max_l_ny)
   real dh_susp(nx,max_l_ny)
   real dh_susp_u(nx,max_l_ny),dh_susp_v(nx,max_l_ny)
 
@@ -193,6 +185,8 @@ subroutine SNOWTRAN_CODE(bc_flag,bs_flag,C_z,&
        &  tabler_sfc_path_name
   integer i_len_tabler,trailing_blanks,icorr_factor_loop,&
        &  i_len_wo,i_len_wi
+  character*4 string,me_string
+  character*9 fmt
 
 ! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -280,29 +274,91 @@ subroutine SNOWTRAN_CODE(bc_flag,bs_flag,C_z,&
 ! c Save the Tabler equilibrium surfaces for each of the 8 main wind
 ! c   directions.  Also save the land DEM distribution.
         if (Tabler_1_flag.eq.1.0) then
-           !SEE IF YOU CAN AVOID SINGLE GATHERS BELOW WITH PARALLEL OUTPUT
-           call single_gather(tabler_nn_orig,l_tabler_nn_orig)
-           call single_gather(tabler_ne_orig,l_tabler_ne_orig)
-           call single_gather(tabler_nw_orig,l_tabler_nw_orig)
-           call single_gather(tabler_ww_orig,l_tabler_ww_orig)
-           call single_gather(tabler_ee_orig,l_tabler_ee_orig)
-           call single_gather(tabler_ss_orig,l_tabler_ss_orig)
-           call single_gather(tabler_se_orig,l_tabler_se_orig)
-           call single_gather(tabler_sw_orig,l_tabler_sw_orig)
+           fmt = '(I4)'
+           write(string,fmt) me
+           me_string = string
 
            i_len_tabler = 80 - trailing_blanks(tabler_sfc_path_name)
-           open(51,&
-                &    file=tabler_sfc_path_name(1:i_len_tabler)//'tabler_sfcs.gdat',&
-                &        form='unformatted',access='direct',recl=4*nx*ny)
-           write(51,rec=1) ((tabler_nn_orig(i,j),i=1,nx),j=1,ny)
-           write(51,rec=2) ((tabler_ne_orig(i,j),i=1,nx),j=1,ny)
-           write(51,rec=3) ((tabler_ee_orig(i,j),i=1,nx),j=1,ny)
-           write(51,rec=4) ((tabler_se_orig(i,j),i=1,nx),j=1,ny)
-           write(51,rec=5) ((tabler_ss_orig(i,j),i=1,nx),j=1,ny)
-           write(51,rec=6) ((tabler_sw_orig(i,j),i=1,nx),j=1,ny)
-           write(51,rec=7) ((tabler_ww_orig(i,j),i=1,nx),j=1,ny)
-           write(51,rec=8) ((tabler_nw_orig(i,j),i=1,nx),j=1,ny)
-           write(51,rec=9) ((topo_land(i,j),i=1,nx),j=1,ny)
+           open (51+me,&
+     &file=tabler_sfc_path_name(1:i_len_tabler)//'tabler_nn'//'/me'//&
+     &            '_'//TRIM(ADJUSTL(me_string))//'.gdat',&
+     &            form='unformatted',access='direct',recl=4*nx*l_ny,&
+     &            status='replace')
+           write(51+me,rec=1) ((l_tabler_nn_orig(i,j),i=1,nx),j=1,l_ny)
+           close(51)
+           sync all
+           !tabler_ne
+           open (51+me,&
+     &file=tabler_sfc_path_name(1:i_len_tabler)//'tabler_ne'//'/me'//&
+     &            '_'//TRIM(ADJUSTL(me_string))//'.gdat',&
+     &            form='unformatted',access='direct',recl=4*nx*l_ny,&
+     &            status='replace')
+           write(51+me,rec=1) ((l_tabler_ne_orig(i,j),i=1,nx),j=1,l_ny)
+           close(51)
+           sync all
+           !tabler_nw
+           open (51+me,&
+     &file=tabler_sfc_path_name(1:i_len_tabler)//'tabler_nw'//'/me'//&
+     &            '_'//TRIM(ADJUSTL(me_string))//'.gdat',&
+     &            form='unformatted',access='direct',recl=4*nx*l_ny,&
+     &            status='replace')
+           write(51+me,rec=1) ((l_tabler_nw_orig(i,j),i=1,nx),j=1,l_ny)
+           close(51)
+           sync all
+           !tabler_ss
+           open (51+me,&
+     &file=tabler_sfc_path_name(1:i_len_tabler)//'tabler_ss'//'/me'//&
+     &            '_'//TRIM(ADJUSTL(me_string))//'.gdat',&
+     &            form='unformatted',access='direct',recl=4*nx*l_ny,&
+     &            status='replace')
+           write(51+me,rec=1) ((l_tabler_ss_orig(i,j),i=1,nx),j=1,l_ny)
+           close(51)
+           sync all
+           !tabler_sw
+           open (51+me,&
+     &file=tabler_sfc_path_name(1:i_len_tabler)//'tabler_sw'//'/me'//&
+     &            '_'//TRIM(ADJUSTL(me_string))//'.gdat',&
+     &            form='unformatted',access='direct',recl=4*nx*l_ny,&
+     &            status='replace')
+           write(51+me,rec=1) ((l_tabler_sw_orig(i,j),i=1,nx),j=1,l_ny)
+           close(51)
+           sync all
+           !tabler_se
+           open (51+me,&
+     &file=tabler_sfc_path_name(1:i_len_tabler)//'tabler_se'//'/me'//&
+     &            '_'//TRIM(ADJUSTL(me_string))//'.gdat',&
+     &            form='unformatted',access='direct',recl=4*nx*l_ny,&
+     &            status='replace')
+           write(51+me,rec=1) ((l_tabler_se_orig(i,j),i=1,nx),j=1,l_ny)
+           close(51)
+           sync all
+           !tabler_ee
+           open (51+me,&
+     &file=tabler_sfc_path_name(1:i_len_tabler)//'tabler_ee'//'/me'//&
+     &            '_'//TRIM(ADJUSTL(me_string))//'.gdat',&
+     &            form='unformatted',access='direct',recl=4*nx*l_ny,&
+     &            status='replace')
+           write(51+me,rec=1) ((l_tabler_ee_orig(i,j),i=1,nx),j=1,l_ny)
+           close(51)
+           sync all
+           !tabler_ww
+           open (51+me,&
+     &file=tabler_sfc_path_name(1:i_len_tabler)//'tabler_ww'//'/me'//&
+     &            '_'//TRIM(ADJUSTL(me_string))//'.gdat',&
+     &            form='unformatted',access='direct',recl=4*nx*l_ny,&
+     &            status='replace')
+           write(51+me,rec=1) ((l_tabler_ww_orig(i,j),i=1,nx),j=1,l_ny)
+           close(51)
+           sync all
+           !topo
+           open (51+me,&
+     &file=tabler_sfc_path_name(1:i_len_tabler)//'topo'//'/me'//&
+     &            '_'//TRIM(ADJUSTL(me_string))//'.gdat',&
+     &            form='unformatted',access='direct',recl=4*nx*l_ny,&
+     &            status='replace')
+           write(51+me,rec=1) ((l_topo_tmp(i,j),i=1,nx),j=1,l_ny)
+           close(51)
+           sync all
            close (51)
         endif
 
@@ -340,20 +396,19 @@ subroutine SNOWTRAN_CODE(bc_flag,bs_flag,C_z,&
   enddo
 
   call single_scatter(Utau,l_Utau)
-  call single_scatter(Utau_t,l_Utau_t)
 
 !c Update the threshold friction velocity.
   if (Utau_t_flag.eq.0.0) then
      if (curve_lg_scale_flag.eq.1.0) then
         do j=1,l_ny
            do i=1,nx
-              l_Utau_t(i,j) = curve_wt_lg(i,j) * Utau_t_const
+              Utau_t(i,j) = curve_wt_lg(i,j) * Utau_t_const
            enddo
         enddo
      else
         do j=1,l_ny
            do i=1,nx
-              l_Utau_t(i,j) = Utau_t_const
+              Utau_t(i,j) = Utau_t_const
            enddo
         enddo
      endif
@@ -361,14 +416,14 @@ subroutine SNOWTRAN_CODE(bc_flag,bs_flag,C_z,&
      do j=1,l_ny
         do i=1,nx
            call surface_snow_1(tair_grid(i,j),windspd_2m_grid(i,j),&
-                &        sprec(i,j),ro_soft_snow(i,j),l_Utau_t(i,j),&
+                &        sprec(i,j),ro_soft_snow(i,j),Utau_t(i,j),&
                 &        ro_soft_snow_old(i,j),dt,ro_nsnow(i,j))
         enddo
      enddo
      if (curve_lg_scale_flag.eq.1.0) then
         do j=1,l_ny
            do i=1,nx
-              l_Utau_t(i,j) = curve_wt_lg(i,j) * l_Utau_t(i,j)
+              Utau_t(i,j) = curve_wt_lg(i,j) * Utau_t(i,j)
            enddo
         enddo
      endif
@@ -393,13 +448,12 @@ subroutine SNOWTRAN_CODE(bc_flag,bs_flag,C_z,&
 ! c   Utau.
      call solveUtau(l_Utau,ht_windobs,windspd_grid,C_z,vonKarman,&
           &    gravity,z_0,h_star,h_const,vegsnowd_xy,snow_d,&
-          &    snow_z0,veg_z0,bs_flag,nx,ny,l_Utau_t,soft_snow_d)
+          &    snow_z0,veg_z0,bs_flag,nx,ny,Utau_t,soft_snow_d)
 
 ! Gather local variables to global after solveUtau
      call single_gather(Utau,l_Utau)
-     call single_gather(Utau_t,l_Utau_t)
 ! Scatter global variables to local before saltation
-     call single_scatter(Qsalt_v,l_Qsalt_v)
+!     call single_scatter(Qsalt_v,l_Qsalt_v)
      call single_scatter(vwind_grid,l_vwind_grid)
 
 ! c If the blowing snow flag indicates wind transported snow
@@ -411,7 +465,7 @@ subroutine SNOWTRAN_CODE(bc_flag,bs_flag,C_z,&
 ! c         print *,'         Saltation'
         call saltation(Qsalt,deltax,fetch,Utau,Utau_t,nx,ny,&
              &      ro_air,gravity,vegsnowd_xy,snow_d,&
-             &      Qsalt_max,Qsalt_maxu,Qsalt_maxv,deltay,Qsalt_u,l_Qsalt_v,&
+             &      Qsalt_max,Qsalt_maxu,Qsalt_maxv,deltay,Qsalt_u,Qsalt_v,&
              &      uwind_grid,vwind_grid,xmu,soft_snow_d,bc_flag)
 
 
@@ -419,16 +473,16 @@ subroutine SNOWTRAN_CODE(bc_flag,bs_flag,C_z,&
 ! c         print *,'         Suspension'
         call suspension(l_Utau,vonKarman,nx,ny,conc_salt,&
              &      Qsalt,Qsusp,z_0,h_star,dz_susp,ztop_susp,pi,&
-             &      fall_vel,Ur_const,Up_const,l_Utau_t,Qsubl,ht_rhobs,&
-             &      tair_grid,rh_grid,Qsusp_u,l_Qsusp_v,uwind_grid,&
+             &      fall_vel,Ur_const,Up_const,Utau_t,Qsubl,ht_rhobs,&
+             &      tair_grid,rh_grid,Qsusp_u,Qsusp_v,uwind_grid,&
              &      l_vwind_grid)
 
      elseif (bs_flag.eq.0.0) then
 
 
         call noblowsnow(nx,ny,Qsalt_max,Qsalt_maxu,&
-             &      Qsalt_maxv,Qsalt,Qsalt_u,l_Qsalt_v,dh_salt,dh_salt_u,&
-             &      dh_salt_v,conc_salt,Qsusp,Qsusp_u,l_Qsusp_v,dh_susp,&
+             &      Qsalt_maxv,Qsalt,Qsalt_u,Qsalt_v,dh_salt,dh_salt_u,&
+             &      dh_salt_v,conc_salt,Qsusp,Qsusp_u,Qsusp_v,dh_susp,&
              &      dh_susp_u,dh_susp_v,Qsubl,l_dh_subgrid)
 
      endif
@@ -438,14 +492,14 @@ subroutine SNOWTRAN_CODE(bc_flag,bs_flag,C_z,&
 ! c This 'noblowsnow' call zeros out data from a previous time step
 ! c   that had blowing snow.
      call noblowsnow(nx,ny,Qsalt_max,Qsalt_maxu,&
-          &    Qsalt_maxv,Qsalt,Qsalt_u,l_Qsalt_v,dh_salt,dh_salt_u,&
-          &    dh_salt_v,conc_salt,Qsusp,Qsusp_u,l_Qsusp_v,dh_susp,&
+          &    Qsalt_maxv,Qsalt,Qsalt_u,Qsalt_v,dh_salt,dh_salt_u,&
+          &    dh_salt_v,conc_salt,Qsusp,Qsusp_u,Qsusp_v,dh_susp,&
           &    dh_susp_u,dh_susp_v,Qsubl,l_dh_subgrid)
 
   endif
 
-  call single_gather(Qsusp_v, l_Qsusp_v)
-  call single_gather(Qsalt_v,l_Qsalt_v)
+!  call single_gather(Qsusp_v, l_Qsusp_v)
+!  call single_gather(Qsalt_v,l_Qsalt_v)
 
 
 ! c If this is a normal SnowTran-3D run, adjust the accumulations
@@ -516,7 +570,7 @@ subroutine SNOWTRAN_CODE(bc_flag,bs_flag,C_z,&
      endif
 
      do j=1,l_ny
-        new_j = global_map(j)
+!        new_j = global_map(j)
         do i=1,nx
            swe_change = wbal_qsubl(i,j) + wbal_salt(i,j) + &
                 &        wbal_susp(i,j) + wbal_subgrid(i,j)
@@ -714,7 +768,7 @@ end subroutine SNOWTRAN_CODE
       &  dh_salt_v,conc_salt,Qsusp,Qsusp_u,Qsusp_v,dh_susp,&
       &  dh_susp_u,dh_susp_v,Qsubl,dh_subgrid)
 
-   use caf_module, only: max_l_ny, l_ny, global_map
+   use caf_module, only: max_l_ny, l_ny
    use snowmodel_inc
    implicit none
 
@@ -735,7 +789,7 @@ end subroutine SNOWTRAN_CODE
    real dh_subgrid(nx,max_l_ny)
    real Qsubl(nx,max_l_ny)
 
-   integer new_j
+!   integer new_j
 
    conc_salt = 0.0
    Qsusp = 0.0
@@ -746,7 +800,7 @@ end subroutine SNOWTRAN_CODE
 
    do i=1,nx
       do j=1,l_ny
-         new_j = global_map(j)
+!         new_j = global_map(j)
          Qsalt_max(i,j) = 0.0
          Qsalt_maxu(i,j) = 0.0
          Qsalt_maxv(i,j) = 0.0
@@ -926,10 +980,10 @@ end subroutine SNOWTRAN_CODE
    real dh_subgrid(nx,max_l_ny)
 
    real Qsalt_u(nx,max_l_ny)
-   real Qsalt_v(nx,ny)
+   real Qsalt_v(nx,max_l_ny)
 
    real Qsusp_u(nx,max_l_ny)
-   real Qsusp_v(nx,ny)
+   real Qsusp_v(nx,max_l_ny)
 
    real wbal_qsubl(nx,max_l_ny)
    real wbal_salt(nx,max_l_ny)
@@ -967,7 +1021,7 @@ end subroutine SNOWTRAN_CODE
            &    ro_snow,dt,vegsnowd_xy,snow_d,&
            &    soft_snow_d,l_snow_d_dep,l_soft_snow_d_dep,subgrid_flag,&
            &    uwind_grid, vwind_grid)
-      call single_gather(Qsalt_v, l_Qsalt_v)
+!      call single_gather(Qsalt_v, l_Qsalt_v)
 
 !c This saves the deposition part of the snow-depth change.
       if (subgrid_flag.eq.1.0) then
@@ -990,7 +1044,7 @@ end subroutine SNOWTRAN_CODE
            &    ro_snow,dt,vegsnowd_xy,snow_d,&
            &    soft_snow_d,l_snow_d_dep,l_soft_snow_d_dep,subgrid_flag,&
            &    uwind_grid, vwind_grid)
-      call single_gather(Qsusp_v, l_Qsusp_v)
+!      call single_gather(Qsusp_v, l_Qsusp_v)
 
 !c This adds the suspension part the deposition to the
 !c   saltation part of the snow-depth change.
@@ -1070,8 +1124,8 @@ end subroutine SNOWTRAN_CODE
                     &          sign(Qsalt_u(i,j),uwind_grid(i,j)) + &
                     &          sign(Qsusp_u(i,j),uwind_grid(i,j))
                bs_flux_v = bs_flux_v + &
-                    &          sign(Qsalt_v(i,new_j),vwind_grid(i,new_j)) + &
-                    &          sign(Qsusp_v(i,new_j),vwind_grid(i,new_j))
+                    &          sign(Qsalt_v(i,j),vwind_grid(i,new_j)) + &
+                    &          sign(Qsusp_v(i,j),vwind_grid(i,new_j))
             enddo
          enddo
          call co_sum(bs_flux_u)
@@ -2082,7 +2136,7 @@ end subroutine SNOWTRAN_CODE
         & partition_ny, me, np
    use snowmodel_inc
    use snowmodel_vars, only: l_Qsalt_v, l_vwind_grid,&
-        & l_Utau, l_Utau_t
+        & l_Utau
    implicit none
 
 !      include 'snowmodel.inc'
@@ -2100,7 +2154,7 @@ end subroutine SNOWTRAN_CODE
    real Qsalt_u(nx,max_l_ny)
    real Qsalt_v(nx,max_l_ny)
    real Utau(nx,ny)
-   real Utau_t(nx,ny)
+   real Utau_t(nx,max_l_ny)
    real uwind_grid(nx,max_l_ny)
    real vwind_grid(nx,ny)
    real snow_d(nx,max_l_ny)
@@ -2128,7 +2182,6 @@ end subroutine SNOWTRAN_CODE
 
 ! c Compute the maximum possible saltation flux, assuming that
 ! c   an abundance of snow is available at the surface.
-   call single_scatter(Utau_t,l_Utau_t)
    call single_scatter(Utau,l_Utau)
    call single_scatter(vwind_grid,l_vwind_grid)
    sync all
@@ -2137,7 +2190,7 @@ end subroutine SNOWTRAN_CODE
       do j=1,l_ny
 !c For a given wind speed, find Qsalt_max.
          Qsalt_max(i,j) = 0.68 * ro_air / gravity * &
-              &      l_Utau_t(i,j) / l_Utau(i,j) * (l_Utau(i,j)**2 - l_Utau_t(i,j)**2)
+              &      Utau_t(i,j) / l_Utau(i,j) * (l_Utau(i,j)**2 - Utau_t(i,j)**2)
          Qsalt_max(i,j) = max(Qsalt_max(i,j),0.0)
 
 ! c Now weight the max saltation flux for the u and v wind
@@ -2257,9 +2310,11 @@ end subroutine SNOWTRAN_CODE
    salt_iter = ceiling(10000 / (deltay * max_l_ny))
    salt_iter = max(2,salt_iter)
    do iter = 1, min(np,salt_iter)
-      sync all
       tmp_buff = 0.0
-      if(me /= 0) tmp_buff(:) = l_Qsalt_v(:,partition_ny(me-1)) [me]
+      if (iter.gt.1) then
+        sync all
+        if(me /= 0) tmp_buff(:) = l_Qsalt_v(:,partition_ny(me-1)) [me] !Remember each processor is me-1
+      endif
 !c Consider SOUTHERLY winds.
       do i=1,nx
          call get_direction_south(vwind_grid, index_start, index_end, npairs, nx, ny, i)
@@ -2310,12 +2365,14 @@ end subroutine SNOWTRAN_CODE
    index_end = 0
    tmp_buff = 0.0
 
-   sync all
+!   sync all
 
 !   do iter = 1,np
    do iter = 1,min(np,salt_iter)
-      sync all
-      if(me /= np-1) tmp_buff(:) = l_Qsalt_v(:,1) [me+2]
+      if (iter.gt.1) then
+        sync all
+        if(me /= np-1) tmp_buff(:) = l_Qsalt_v(:,1) [me+2]!Remember each processor is me-1
+      endif
       !c Consider NORTHERLY winds.
       do i=1,nx
          call get_direction_north(vwind_grid, index_start, index_end, npairs, nx, ny, i)
@@ -2361,7 +2418,7 @@ end subroutine SNOWTRAN_CODE
       enddo
    enddo
 
-   sync all
+!   sync all
 
 
    deallocate(tmp_buff)
@@ -2421,7 +2478,7 @@ end subroutine SNOWTRAN_CODE
 ! c   (bs_flag = 0.0).  Then, if snow is found to blow in any
 ! c   domain grid cell, set the flag to on (bs_flag = 1.0).
    bs_flag = 0.0
-   sync all
+!   sync all
 !c Build the Utau array.
    guess = 0.1
    do j=1,l_ny
@@ -3229,17 +3286,17 @@ end subroutine SNOWTRAN_CODE
 ! c   evolution so they can be dealt with separately in the
    ! c   subgrid_flag = 1.0 approach and routines.
 
-   use caf_module, only: l_ny, max_l_ny, global_map, single_gather, single_scatter, &
+   use caf_module, only: l_ny, max_l_ny, single_gather, single_scatter, &
         & partition_ny, me, np
    use snowmodel_inc
-   use snowmodel_vars, only: l_Qsalt_v, l_Qsalt_u
+   use snowmodel_vars, only: l_Qsalt_v
 
    implicit none
 
    !include 'snowmodel.inc'
 
    integer i,j,nx,ny
-   integer k,istart,iend,jstart,jend,new_j
+   integer k,istart,iend,jstart,jend
 
    real deltax,deltay,ro_snow,dt,dQsalt,snowdmin
    real hard_snow_d,weight_u,weight_v,eps
@@ -3249,7 +3306,7 @@ end subroutine SNOWTRAN_CODE
    real vwind_grid(nx,ny)
 
    real Qsalt_u(nx,max_l_ny)
-   real Qsalt_v(nx,ny)
+   real Qsalt_v(nx,max_l_ny)
 
    real snow_d(nx,max_l_ny)
    real soft_snow_d(nx,max_l_ny)
@@ -3282,7 +3339,7 @@ end subroutine SNOWTRAN_CODE
 
 !c Consider WESTERLY winds.
    do j=1,l_ny
-      new_j = global_map(j)
+!      new_j = global_map(j)
       call get_direction_west(uwind_grid, index_start, index_end, npairs, nx,l_ny,j)
       do k=1, npairs
          istart = index_start(k)+1
@@ -3315,7 +3372,7 @@ end subroutine SNOWTRAN_CODE
 
 !c Consider EASTERLY winds.
    do j=1,l_ny
-      new_j = global_map(j)
+!      new_j = global_map(j)
       call get_direction_east(uwind_grid, index_start, index_end, npairs, nx,l_ny,j)
       do k=1,npairs
          iend = index_start(k)
@@ -3341,7 +3398,7 @@ end subroutine SNOWTRAN_CODE
             endif
          enddo
       enddo
-      enddo
+   enddo
 
    deallocate(index_start,index_end)
    allocate(index_start(ny),index_end(ny))
@@ -3350,7 +3407,7 @@ end subroutine SNOWTRAN_CODE
    index_end = 0
 
 
-   call single_scatter(Qsalt_v,l_Qsalt_v)
+!   call single_scatter(Qsalt_v,l_Qsalt_v)
 
    allocate(tmp_buff(nx))
 
@@ -3360,7 +3417,8 @@ end subroutine SNOWTRAN_CODE
    do iter = 1,min(np,salt_iter)
       sync all
       tmp_buff = 0.0
-      if(me /= 0) tmp_buff(:) = l_Qsalt_v(:,partition_ny(me-1)) [me]
+      l_Qsalt_v = Qsalt_v
+      if(me /= 0) tmp_buff(:) = l_Qsalt_v(:,partition_ny(me-1)) [me]!Remember each processor is me-1
       !c Consider SOUTHERLY winds.
       do i=1,nx
          call get_direction_south(vwind_grid, index_start, index_end, npairs, nx, ny, i)
@@ -3369,8 +3427,8 @@ end subroutine SNOWTRAN_CODE
             jend = index_end(k)
             if(jstart == 1 .and. jend >= jstart) then
                !use buffer
-               new_j = global_map(jstart)
-               dQsalt = l_Qsalt_v(i,jstart) - tmp_buff(i)!Qsalt_v(i,j-1)
+!               new_j = global_map(jstart)
+               dQsalt = Qsalt_v(i,jstart) - tmp_buff(i)!Qsalt_v(i,j-1)
                dh_salt_v(i,jstart) = (- dt) / ro_snow * dQsalt / deltay
 
                ! c Make adjustments for the case where there is no snow available
@@ -3381,19 +3439,19 @@ end subroutine SNOWTRAN_CODE
                if (snow_d(i,jstart).gt.snowdmin) then
                   if (snow_d(i,jstart) + dh_salt_v(i,jstart).le.snowdmin) then
                      dh_salt_v(i,jstart) = snowdmin - snow_d(i,jstart)
-                     l_Qsalt_v(i,jstart) = tmp_buff(i) - dh_salt_v(i,jstart) * &
+                     Qsalt_v(i,jstart) = tmp_buff(i) - dh_salt_v(i,jstart) * &
                           &            ro_snow * deltay / dt
                   endif
                else
-                  l_Qsalt_v(i,jstart) = 0.0
+                  Qsalt_v(i,jstart) = 0.0
                   dh_salt_v(i,jstart) = 0.0
                endif
                jstart = jstart + 1
             end if
 
             do j=jstart,jend
-               new_j = global_map(j)
-               dQsalt = l_Qsalt_v(i,j) - l_Qsalt_v(i,j-1)
+!               new_j = global_map(j)
+               dQsalt = Qsalt_v(i,j) - Qsalt_v(i,j-1)
                dh_salt_v(i,j) = (- dt) / ro_snow * dQsalt / deltay
 
                ! c Make adjustments for the case where there is no snow available
@@ -3404,28 +3462,29 @@ end subroutine SNOWTRAN_CODE
                if (snow_d(i,j).gt.snowdmin) then
                   if (snow_d(i,j) + dh_salt_v(i,j).le.snowdmin) then
                      dh_salt_v(i,j) = snowdmin - snow_d(i,j)
-                     l_Qsalt_v(i,j) = l_Qsalt_v(i,j-1) - dh_salt_v(i,j) * &
+                     Qsalt_v(i,j) = Qsalt_v(i,j-1) - dh_salt_v(i,j) * &
                           &            ro_snow * deltay / dt
                   endif
                else
-                  l_Qsalt_v(i,j) = 0.0
+                  Qsalt_v(i,j) = 0.0
                   dh_salt_v(i,j) = 0.0
                endif
             enddo
          enddo
       enddo
-   end do
+   enddo
 
    index_start = 0
    index_end = 0
    tmp_buff = 0.0
 
-   sync all
+!   sync all
 
 !   do iter = 1, np
    do iter = 1,min(np,salt_iter)
       sync all
-      if(me /= np-1) tmp_buff(:) = l_Qsalt_v(:,1) [me+2]
+      l_Qsalt_v = Qsalt_v
+      if(me /= np-1) tmp_buff(:) = l_Qsalt_v(:,1) [me+2]!Remember each processor is me-1
       !c Consider NORTHERLY winds.
       do i=1,nx
          call get_direction_north(vwind_grid, index_start, index_end, npairs, nx, ny, i)
@@ -3433,8 +3492,8 @@ end subroutine SNOWTRAN_CODE
             jend = index_start(k)
             jstart = index_end(k)-1
             if(jstart == l_ny .and. jend <= jstart) then
-               new_j = global_map(jstart)
-               dQsalt = l_Qsalt_v(i,jstart) - tmp_buff(i)!Qsalt_v(i,j+1)
+!               new_j = global_map(jstart)
+               dQsalt = Qsalt_v(i,jstart) - tmp_buff(i)!Qsalt_v(i,j+1)
                dh_salt_v(i,jstart) = (- dt) / ro_snow * dQsalt / deltay
                ! c Make adjustments for the case where there is no snow available
                ! c   on the ground (or captured within the vegetation) to be
@@ -3444,19 +3503,19 @@ end subroutine SNOWTRAN_CODE
                if (snow_d(i,jstart).gt.snowdmin) then
                   if (snow_d(i,jstart) + dh_salt_v(i,jstart).le.snowdmin) then
                      dh_salt_v(i,jstart) = snowdmin - snow_d(i,jstart)
-                     l_Qsalt_v(i,jstart) = tmp_buff(i) - dh_salt_v(i,jstart) * &
+                     Qsalt_v(i,jstart) = tmp_buff(i) - dh_salt_v(i,jstart) * &
                           &            ro_snow * deltay / dt
                   endif
                else
-                  l_Qsalt_v(i,jstart) = 0.0
+                  Qsalt_v(i,jstart) = 0.0
                   dh_salt_v(i,jstart) = 0.0
                endif
                jstart = jstart - 1
             end if
 
             do j=jstart,jend,-1
-               new_j = global_map(j)
-               dQsalt = l_Qsalt_v(i,j) - l_Qsalt_v(i,j+1)
+!               new_j = global_map(j)
+               dQsalt = Qsalt_v(i,j) - Qsalt_v(i,j+1)
                dh_salt_v(i,j) = (- dt) / ro_snow * dQsalt / deltay
                ! c Make adjustments for the case where there is no snow available
                ! c   on the ground (or captured within the vegetation) to be
@@ -3466,11 +3525,11 @@ end subroutine SNOWTRAN_CODE
                if (snow_d(i,j).gt.snowdmin) then
                   if (snow_d(i,j) + dh_salt_v(i,j).le.snowdmin) then
                      dh_salt_v(i,j) = snowdmin - snow_d(i,j)
-                     l_Qsalt_v(i,j) = l_Qsalt_v(i,j+1) - dh_salt_v(i,j) * &
+                     Qsalt_v(i,j) = Qsalt_v(i,j+1) - dh_salt_v(i,j) * &
                           &            ro_snow * deltay / dt
                   endif
                else
-                  l_Qsalt_v(i,j) = 0.0
+                  Qsalt_v(i,j) = 0.0
                   dh_salt_v(i,j) = 0.0
                endif
             enddo
@@ -3480,7 +3539,7 @@ end subroutine SNOWTRAN_CODE
 
    sync all
 
-   call single_gather(Qsalt_v,l_Qsalt_v)
+!   call single_gather(Qsalt_v,l_Qsalt_v)
 
    deallocate(tmp_buff)
 

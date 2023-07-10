@@ -47,7 +47,7 @@ contains
 
     call allocation()
     call partition()
-    call distribute()
+!    call distribute()
 
     sync all
 
@@ -201,9 +201,16 @@ contains
     allocate(l_tabler_sw(nx,max_l_ny)[*],source=zero_real)
     allocate(l_tabler_sw_orig(nx,max_l_ny)[*],source=zero_real)
     allocate(l_topo_tmp(nx,max_l_ny)[*],source=zero_real)
+    allocate(l_topo_land(nx,max_l_ny)[*],source=zero_real)
     allocate(l_snow_d_tabler(nx,max_l_ny)[*],source=zero_real)
     allocate(l_dh_dep(nx,max_l_ny)[*],source=zero_real)
     allocate(l_snow_d_tmp(nx,max_l_ny)[*],source=zero_real)
+    allocate(l_xlat_grid(nx,max_l_ny)[*],source=zero_real)
+    allocate(l_xlon_grid(nx,max_l_ny)[*],source=zero_real)
+    allocate(l_xg_line(nx,max_l_ny)[*])
+    allocate(l_yg_line(nx,max_l_ny)[*])
+    l_xg_line = 0.0
+    l_yg_line = 0.0
 
 
     allocate(l_swed_layer(nx,max_l_ny,nz_max)[*],source=zero_real_three_d)
@@ -213,6 +220,10 @@ contains
     allocate(l_gamma(nx,max_l_ny,nz_max)[*],source=zero_real_three_d)
     allocate(l_diam_layer(nx,max_l_ny,nz_max)[*],source=zero_real_three_d)
     allocate(l_flux_layer(nx,max_l_ny,nz_max)[*],source=zero_real_three_d)
+    allocate(l_k_stn(nx,max_l_ny,9)[*])
+    l_k_stn = 0
+    allocate(l_melt_flag(nx,max_l_ny,nz_max)[*])
+    l_melt_flag = 0
 
 
     !Halo exchange buffer allocation
@@ -239,16 +250,16 @@ contains
           l_wbal_susp(1:nx, 1:partition_ny(idx))[idx+1] = wbal_susp(1:nx, ny_start:ny_end)
           l_wbal_salt(1:nx, 1:partition_ny(idx))[idx+1] = wbal_salt(1:nx, ny_start:ny_end)
           l_wbal_qsubl(1:nx, 1:partition_ny(idx))[idx+1] = wbal_qsubl(1:nx, ny_start:ny_end)
-          l_ro_soft_snow(1:nx, 1:partition_ny(idx))[idx+1] = ro_soft_snow(1:nx, ny_start:ny_end)
+!          l_ro_soft_snow(1:nx, 1:partition_ny(idx))[idx+1] = ro_soft_snow(1:nx, ny_start:ny_end)
           l_ro_soft_snow_old(1:nx, 1:partition_ny(idx))[idx+1] = ro_soft_snow_old(1:nx, ny_start:ny_end)
-          l_curve_wt_lg(1:nx, 1:partition_ny(idx))[idx+1] = curve_wt_lg(1:nx, ny_start:ny_end)
-          l_vegtype(1:nx, 1:partition_ny(idx))[idx+1] = vegtype(1:nx, ny_start:ny_end)
-          l_vegsnowd_xy(1:nx, 1:partition_ny(idx))[idx+1] = vegsnowd_xy(1:nx, ny_start:ny_end)
-          l_veg_z0(1:nx, 1:partition_ny(idx))[idx+1] = veg_z0(1:nx, ny_start:ny_end)
-          l_tair_grid(1:nx, 1:partition_ny(idx))[idx+1] = tair_grid(1:nx, ny_start:ny_end)
+!          l_curve_wt_lg(1:nx, 1:partition_ny(idx))[idx+1] = curve_wt_lg(1:nx, ny_start:ny_end)
+!          l_vegtype(1:nx, 1:partition_ny(idx))[idx+1] = vegtype(1:nx, ny_start:ny_end)
+!          l_vegsnowd_xy(1:nx, 1:partition_ny(idx))[idx+1] = vegsnowd_xy(1:nx, ny_start:ny_end)
+!          l_veg_z0(1:nx, 1:partition_ny(idx))[idx+1] = veg_z0(1:nx, ny_start:ny_end)
+!          l_tair_grid(1:nx, 1:partition_ny(idx))[idx+1] = tair_grid(1:nx, ny_start:ny_end)
           l_cloud_frac_grid(1:nx, 1:partition_ny(idx))[idx+1] = cloud_frac_grid(1:nx, ny_start:ny_end)
           l_sprec(1:nx, 1:partition_ny(idx))[idx+1] = sprec(1:nx, ny_start:ny_end)
-          l_cf_precip(1:nx, 1:partition_ny(idx))[idx+1] = cf_precip(1:nx, ny_start:ny_end)
+!          l_cf_precip(1:nx, 1:partition_ny(idx))[idx+1] = cf_precip(1:nx, ny_start:ny_end)
           l_rh_grid(1:nx, 1:partition_ny(idx))[idx+1] = rh_grid(1:nx, ny_start:ny_end)
           l_windspd_grid(1:nx, 1:partition_ny(idx))[idx+1] = windspd_grid(1:nx, ny_start:ny_end)
           l_winddir_grid(1:nx, 1:partition_ny(idx))[idx+1] = winddir_grid(1:nx, ny_start:ny_end)
@@ -257,9 +268,9 @@ contains
           l_Qli_grid(1:nx, 1:partition_ny(idx))[idx+1] = Qli_grid(1:nx, ny_start:ny_end)
           l_prec_grid(1:nx, 1:partition_ny(idx))[idx+1] = prec_grid(1:nx, ny_start:ny_end)
           l_albedo(1:nx, 1:partition_ny(idx))[idx+1] = albedo(1:nx, ny_start:ny_end)
-          l_curvature(1:nx, 1:partition_ny(idx))[idx+1] = curvature(1:nx, ny_start:ny_end)
-          l_slope_az(1:nx, 1:partition_ny(idx))[idx+1] = slope_az(1:nx, ny_start:ny_end)
-          l_terrain_slope(1:nx, 1:partition_ny(idx))[idx+1] = terrain_slope(1:nx, ny_start:ny_end)
+!          l_curvature(1:nx, 1:partition_ny(idx))[idx+1] = curvature(1:nx, ny_start:ny_end)
+!          l_slope_az(1:nx, 1:partition_ny(idx))[idx+1] = slope_az(1:nx, ny_start:ny_end)
+!          l_terrain_slope(1:nx, 1:partition_ny(idx))[idx+1] = terrain_slope(1:nx, ny_start:ny_end)
           l_swe_depth(1:nx, 1:partition_ny(idx))[idx+1] = swe_depth(1:nx, ny_start:ny_end)
           l_sfc_pressure(1:nx, 1:partition_ny(idx))[idx+1] = sfc_pressure(1:nx, ny_start:ny_end)
           l_Qm(1:nx, 1:partition_ny(idx))[idx+1] = Qm(1:nx, ny_start:ny_end)
@@ -269,16 +280,17 @@ contains
           l_Qf(1:nx, 1:partition_ny(idx))[idx+1] = Qf(1:nx, ny_start:ny_end)
           l_Qle(1:nx, 1:partition_ny(idx))[idx+1] = Qle(1:nx, ny_start:ny_end)
           l_Tsfc(1:nx, 1:partition_ny(idx))[idx+1] = Tsfc(1:nx, ny_start:ny_end)
-          l_snow_d(1:nx, 1:partition_ny(idx))[idx+1] = snow_d(1:nx, ny_start:ny_end)
+!          l_snow_d(1:nx, 1:partition_ny(idx))[idx+1] = snow_d(1:nx, ny_start:ny_end)
           l_snow_d_init(1:nx, 1:partition_ny(idx))[idx+1] = snow_d_init(1:nx, ny_start:ny_end)
-          l_tslsnowfall(1:nx, 1:partition_ny(idx))[idx+1] = tslsnowfall(1:nx, ny_start:ny_end)
-          l_change_layer(1:nx, 1:partition_ny(idx))[idx+1] = change_layer(1:nx, ny_start:ny_end)
+!          l_tslsnowfall(1:nx, 1:partition_ny(idx))[idx+1] = tslsnowfall(1:nx, ny_start:ny_end)
+!          l_change_layer(1:nx, 1:partition_ny(idx))[idx+1] = change_layer(1:nx, ny_start:ny_end)
           l_KK(1:nx, 1:partition_ny(idx))[idx+1] = KK(1:nx, ny_start:ny_end)
           l_ro_nsnow(1:nx, 1:partition_ny(idx))[idx+1] = ro_nsnow(1:nx, ny_start:ny_end)
           l_snow_depth(1:nx, 1:partition_ny(idx))[idx+1] = snow_depth(1:nx, ny_start:ny_end)
           l_rain(1:nx, 1:partition_ny(idx))[idx+1] = rain(1:nx, ny_start:ny_end)
           l_sum_runoff(1:nx, 1:partition_ny(idx))[idx+1] = sum_runoff(1:nx, ny_start:ny_end)
-          l_sum_prec(1:nx, 1:partition_ny(idx))[idx+1] = sum_sprec(1:nx, ny_start:ny_end)
+          l_sum_sprec(1:nx, 1:partition_ny(idx))[idx+1] = sum_sprec(1:nx, ny_start:ny_end)
+          l_sum_prec(1:nx, 1:partition_ny(idx))[idx+1] = sum_prec(1:nx, ny_start:ny_end)
           l_runoff(1:nx, 1:partition_ny(idx))[idx+1] = runoff(1:nx, ny_start:ny_end)
           l_xro_snow(1:nx, 1:partition_ny(idx))[idx+1] = xro_snow(1:nx, ny_start:ny_end)
           l_canopy_int(1:nx, 1:partition_ny(idx))[idx+1] = canopy_int(1:nx, ny_start:ny_end)
@@ -299,7 +311,7 @@ contains
           l_Qcs(1:nx, 1:partition_ny(idx))[idx+1] = Qcs(1:nx, ny_start:ny_end)
           l_sum_Qcs(1:nx, 1:partition_ny(idx))[idx+1] = sum_Qcs(1:nx, ny_start:ny_end)
           l_sum_sfcsublim(1:nx, 1:partition_ny(idx))[idx+1] = sum_sfcsublim(1:nx, ny_start:ny_end)
-          l_windspd_2m_grid(1:nx, 1:partition_ny(idx))[idx+1] = windspd_2m_grid(1:nx, ny_start:ny_end)
+!          l_windspd_2m_grid(1:nx, 1:partition_ny(idx))[idx+1] = windspd_2m_grid(1:nx, ny_start:ny_end)
           l_uwind_grid(1:nx, 1:partition_ny(idx))[idx+1] = uwind_grid(1:nx, ny_start:ny_end)
           l_vwind_grid(1:nx, 1:partition_ny(idx))[idx+1] = vwind_grid(1:nx, ny_start:ny_end)
        end do
@@ -307,11 +319,44 @@ contains
 
   end subroutine distribute
 
-
-  subroutine gather()
+  subroutine distribute2(snowmodel_line_fg)
     use snowmodel_inc
     use snowmodel_vars
     implicit none
+    real, intent(in) :: snowmodel_line_fg
+
+    integer :: ny_start, ny_end, idx
+
+    if(me == 0) then
+       do idx = 0, np-1
+
+          ny_start = prefix_sum(idx) + 1
+          ny_end = ny_start + partition_ny(idx) - 1
+
+!          l_curve_wt_lg(1:nx, 1:partition_ny(idx))[idx+1] = curve_wt_lg(1:nx, ny_start:ny_end)
+!          l_vegtype(1:nx, 1:partition_ny(idx))[idx+1] = vegtype(1:nx, ny_start:ny_end)
+!          l_vegsnowd_xy(1:nx, 1:partition_ny(idx))[idx+1] = vegsnowd_xy(1:nx, ny_start:ny_end)
+!          l_veg_z0(1:nx, 1:partition_ny(idx))[idx+1] = veg_z0(1:nx, ny_start:ny_end)
+!          l_cf_precip(1:nx, 1:partition_ny(idx))[idx+1] = cf_precip(1:nx, ny_start:ny_end)
+          l_snow_d(1:nx, 1:partition_ny(idx))[idx+1] = snow_d(1:nx, ny_start:ny_end)
+          l_vwind_grid(1:nx, 1:partition_ny(idx))[idx+1] = vwind_grid(1:nx, ny_start:ny_end)
+
+          if (snowmodel_line_fg.eq.1.0) then
+            l_xg_line(1:nx, 1:partition_ny(idx))[idx+1] = xg_line(1:nx, ny_start:ny_end)
+            l_yg_line(1:nx, 1:partition_ny(idx))[idx+1] = yg_line(1:nx, ny_start:ny_end)
+         endif
+       end do
+    end if
+
+  end subroutine distribute2
+
+
+  subroutine gather(print_multilayer_param)
+    use snowmodel_inc
+    use snowmodel_vars
+    implicit none
+
+    real, intent(in) :: print_multilayer_param
 
     integer :: ny_start, ny_end, idx
 
@@ -327,12 +372,12 @@ contains
           end if
 
           vegtype(1:nx, ny_start:ny_end) = l_vegtype(1:nx, 1:partition_ny(idx))[idx+1]
-          vegsnowd_xy(1:nx, ny_start:ny_end) = l_vegsnowd_xy(1:nx, 1:partition_ny(idx))[idx+1]
-          veg_z0(1:nx, ny_start:ny_end) = l_veg_z0(1:nx, 1:partition_ny(idx))[idx+1]
+!          vegsnowd_xy(1:nx, ny_start:ny_end) = l_vegsnowd_xy(1:nx, 1:partition_ny(idx))[idx+1]
+!          veg_z0(1:nx, ny_start:ny_end) = l_veg_z0(1:nx, 1:partition_ny(idx))[idx+1]
           tair_grid(1:nx, ny_start:ny_end) = l_tair_grid(1:nx, 1:partition_ny(idx))[idx+1]
           cloud_frac_grid(1:nx, ny_start:ny_end) = l_cloud_frac_grid(1:nx, 1:partition_ny(idx))[idx+1]
           sprec(1:nx, ny_start:ny_end) = l_sprec(1:nx, 1:partition_ny(idx))[idx+1]
-          cf_precip(1:nx, ny_start:ny_end) = l_cf_precip(1:nx, 1:partition_ny(idx))[idx+1]
+!          cf_precip(1:nx, ny_start:ny_end) = l_cf_precip(1:nx, 1:partition_ny(idx))[idx+1]
           rh_grid(1:nx, ny_start:ny_end) = l_rh_grid(1:nx, 1:partition_ny(idx))[idx+1]
           windspd_grid(1:nx, ny_start:ny_end) = l_windspd_grid(1:nx, 1:partition_ny(idx))[idx+1]
           winddir_grid(1:nx, ny_start:ny_end) = l_winddir_grid(1:nx, 1:partition_ny(idx))[idx+1]
@@ -341,9 +386,9 @@ contains
           Qli_grid(1:nx, ny_start:ny_end) = l_Qli_grid(1:nx, 1:partition_ny(idx))[idx+1]
           prec_grid(1:nx, ny_start:ny_end) = l_prec_grid(1:nx, 1:partition_ny(idx))[idx+1]
           albedo(1:nx, ny_start:ny_end) = l_albedo(1:nx, 1:partition_ny(idx))[idx+1]
-          curvature(1:nx, ny_start:ny_end) = l_curvature(1:nx, 1:partition_ny(idx))[idx+1]
-          slope_az(1:nx, ny_start:ny_end) = l_slope_az(1:nx, 1:partition_ny(idx))[idx+1]
-          terrain_slope(1:nx, ny_start:ny_end) = l_terrain_slope(1:nx, 1:partition_ny(idx))[idx+1]
+!          curvature(1:nx, ny_start:ny_end) = l_curvature(1:nx, 1:partition_ny(idx))[idx+1]
+!          slope_az(1:nx, ny_start:ny_end) = l_slope_az(1:nx, 1:partition_ny(idx))[idx+1]
+!          terrain_slope(1:nx, ny_start:ny_end) = l_terrain_slope(1:nx, 1:partition_ny(idx))[idx+1]
           swe_depth(1:nx, ny_start:ny_end) = l_swe_depth(1:nx, 1:partition_ny(idx))[idx+1]
           sfc_pressure(1:nx, ny_start:ny_end) = l_sfc_pressure(1:nx, 1:partition_ny(idx))[idx+1]
           Qm(1:nx, ny_start:ny_end) = l_Qm(1:nx, 1:partition_ny(idx))[idx+1]
@@ -355,14 +400,15 @@ contains
           Tsfc(1:nx, ny_start:ny_end) = l_Tsfc(1:nx, 1:partition_ny(idx))[idx+1]
           snow_d(1:nx, ny_start:ny_end) = l_snow_d(1:nx, 1:partition_ny(idx))[idx+1]
           snow_d_init(1:nx, ny_start:ny_end) = l_snow_d_init(1:nx, 1:partition_ny(idx))[idx+1]
-          tslsnowfall(1:nx, ny_start:ny_end) = l_tslsnowfall(1:nx, 1:partition_ny(idx))[idx+1]
-          change_layer(1:nx, ny_start:ny_end) = l_change_layer(1:nx, 1:partition_ny(idx))[idx+1]
+!          tslsnowfall(1:nx, ny_start:ny_end) = l_tslsnowfall(1:nx, 1:partition_ny(idx))[idx+1]
+!          change_layer(1:nx, ny_start:ny_end) = l_change_layer(1:nx, 1:partition_ny(idx))[idx+1]
           KK(1:nx, ny_start:ny_end) = l_KK(1:nx, 1:partition_ny(idx))[idx+1]
           ro_nsnow(1:nx, ny_start:ny_end) = l_ro_nsnow(1:nx, 1:partition_ny(idx))[idx+1]
           snow_depth(1:nx, ny_start:ny_end) = l_snow_depth(1:nx, 1:partition_ny(idx))[idx+1]
           rain(1:nx, ny_start:ny_end) = l_rain(1:nx, 1:partition_ny(idx))[idx+1]
           sum_runoff(1:nx, ny_start:ny_end) = l_sum_runoff(1:nx, 1:partition_ny(idx))[idx+1]
-          sum_sprec(1:nx, ny_start:ny_end) = l_sum_prec(1:nx, 1:partition_ny(idx))[idx+1]
+          sum_sprec(1:nx, ny_start:ny_end) = l_sum_sprec(1:nx, 1:partition_ny(idx))[idx+1]
+          sum_prec(1:nx, ny_start:ny_end) = l_sum_prec(1:nx, 1:partition_ny(idx))[idx+1]
           runoff(1:nx, ny_start:ny_end) = l_runoff(1:nx, 1:partition_ny(idx))[idx+1]
           xro_snow(1:nx, ny_start:ny_end) = l_xro_snow(1:nx, 1:partition_ny(idx))[idx+1]
           canopy_int(1:nx, ny_start:ny_end) = l_canopy_int(1:nx, 1:partition_ny(idx))[idx+1]
@@ -379,13 +425,23 @@ contains
           e_balance(1:nx, ny_start:ny_end) = l_e_balance(1:nx, 1:partition_ny(idx))[idx+1]
           w_balance(1:nx, ny_start:ny_end) = l_w_balance(1:nx, 1:partition_ny(idx))[idx+1]
           ro_snow_grid(1:nx, ny_start:ny_end) = l_ro_snow_grid(1:nx, 1:partition_ny(idx))[idx+1]
+          ro_soft_snow_old(1:nx, ny_start:ny_end) = l_ro_soft_snow_old(1:nx, 1:partition_ny(idx))[idx+1]
           sum_unload(1:nx, ny_start:ny_end) = l_sum_unload(1:nx, 1:partition_ny(idx))[idx+1]
           Qcs(1:nx, ny_start:ny_end) = l_Qcs(1:nx, 1:partition_ny(idx))[idx+1]
           sum_Qcs(1:nx, ny_start:ny_end) = l_sum_Qcs(1:nx, 1:partition_ny(idx))[idx+1]
           sum_sfcsublim(1:nx, ny_start:ny_end) = l_sum_sfcsublim(1:nx, 1:partition_ny(idx))[idx+1]
-          windspd_2m_grid(1:nx, ny_start:ny_end) = l_windspd_2m_grid(1:nx, 1:partition_ny(idx))[idx+1]
+!          windspd_2m_grid(1:nx, ny_start:ny_end) = l_windspd_2m_grid(1:nx, 1:partition_ny(idx))[idx+1]
           uwind_grid(1:nx, ny_start:ny_end) = l_uwind_grid(1:nx, 1:partition_ny(idx))[idx+1]
           vwind_grid(1:nx, ny_start:ny_end) = l_vwind_grid(1:nx, 1:partition_ny(idx))[idx+1]
+          if (print_multilayer_param.eq.1.0) then
+            snod_layer(1:nx, ny_start:ny_end,:) = l_snod_layer(1:nx, 1:partition_ny(idx),:)[idx+1]
+            swed_layer(1:nx, ny_start:ny_end,:) = l_swed_layer(1:nx, 1:partition_ny(idx),:)[idx+1]
+            ro_layer(1:nx, ny_start:ny_end,:) = l_ro_layer(1:nx, 1:partition_ny(idx),:)[idx+1]
+            T_old(1:nx, ny_start:ny_end,:) = l_T_old(1:nx, 1:partition_ny(idx),:)[idx+1]
+            gamma(1:nx, ny_start:ny_end,:) = l_gamma(1:nx, 1:partition_ny(idx),:)[idx+1]
+            diam_layer(1:nx, ny_start:ny_end,:) = l_diam_layer(1:nx, 1:partition_ny(idx),:)[idx+1]
+            flux_layer(1:nx, ny_start:ny_end,:) = l_flux_layer(1:nx, 1:partition_ny(idx),:)[idx+1]
+          endif
 
        end do
     end if
@@ -415,6 +471,27 @@ contains
 
   end subroutine single_gather_integer
 
+  subroutine single_gather_3D_integer(global_array, local_array)
+    implicit none
+
+    integer, intent(out) :: global_array(:,:,:)
+    integer :: local_array(:,:,:)[*]
+    integer :: idx,ny_start,ny_end
+
+    sync all
+
+    do idx = 0,np-1
+       ny_start = prefix_sum(idx) + 1
+       ny_end = ny_start + partition_ny(idx) - 1
+
+       global_array(1:max_l_nx,ny_start:ny_end,:) = local_array(1:max_l_nx,1:partition_ny(idx),:)[idx+1]
+
+    end do
+
+    sync all
+
+  end subroutine single_gather_3D_integer
+
   subroutine single_gather_real(global_array, local_array)
     implicit none
 
@@ -435,6 +512,7 @@ contains
     sync all
 
   end subroutine single_gather_real
+
 
     subroutine single_scatter_integer(global_array, local_array)
     implicit none
@@ -486,6 +564,31 @@ contains
 
   end subroutine single_scatter_real
 
+  subroutine single_scatter_double(global_array, local_array)
+    implicit none
+
+    double precision :: global_array(:,:)
+    double precision :: local_array(:,:)[*]
+    integer :: idx,ny_start,ny_end,nx
+
+    nx = max_l_nx
+
+    sync all
+
+    if(me == 0) then
+       do idx = 0, np-1
+
+          ny_start = prefix_sum(idx) + 1
+          ny_end = ny_start + partition_ny(idx) - 1
+
+          local_array(1:nx, 1:partition_ny(idx))[idx+1] = global_array(1:nx, ny_start:ny_end)
+       end do
+    end if
+
+    sync all
+
+  end subroutine single_scatter_double
+
   subroutine manual_bcast()
     use snowmodel_inc
     use snowmodel_vars
@@ -502,7 +605,7 @@ contains
 
        vegtype(1:nx, ny_start:ny_end) = l_vegtype(1:nx, 1:partition_ny(idx))[idx+1]
        vegsnowd_xy(1:nx, ny_start:ny_end) = l_vegsnowd_xy(1:nx, 1:partition_ny(idx))[idx+1]
-       veg_z0(1:nx, ny_start:ny_end) = l_veg_z0(1:nx, 1:partition_ny(idx))[idx+1]
+!       veg_z0(1:nx, ny_start:ny_end) = l_veg_z0(1:nx, 1:partition_ny(idx))[idx+1]
        tair_grid(1:nx, ny_start:ny_end) = l_tair_grid(1:nx, 1:partition_ny(idx))[idx+1]
        cloud_frac_grid(1:nx, ny_start:ny_end) = l_cloud_frac_grid(1:nx, 1:partition_ny(idx))[idx+1]
        sprec(1:nx, ny_start:ny_end) = l_sprec(1:nx, 1:partition_ny(idx))[idx+1]
@@ -515,9 +618,9 @@ contains
        Qli_grid(1:nx, ny_start:ny_end) = l_Qli_grid(1:nx, 1:partition_ny(idx))[idx+1]
        prec_grid(1:nx, ny_start:ny_end) = l_prec_grid(1:nx, 1:partition_ny(idx))[idx+1]
        albedo(1:nx, ny_start:ny_end) = l_albedo(1:nx, 1:partition_ny(idx))[idx+1]
-       curvature(1:nx, ny_start:ny_end) = l_curvature(1:nx, 1:partition_ny(idx))[idx+1]
-       slope_az(1:nx, ny_start:ny_end) = l_slope_az(1:nx, 1:partition_ny(idx))[idx+1]
-       terrain_slope(1:nx, ny_start:ny_end) = l_terrain_slope(1:nx, 1:partition_ny(idx))[idx+1]
+!       curvature(1:nx, ny_start:ny_end) = l_curvature(1:nx, 1:partition_ny(idx))[idx+1]
+!       slope_az(1:nx, ny_start:ny_end) = l_slope_az(1:nx, 1:partition_ny(idx))[idx+1]
+!       terrain_slope(1:nx, ny_start:ny_end) = l_terrain_slope(1:nx, 1:partition_ny(idx))[idx+1]
        swe_depth(1:nx, ny_start:ny_end) = l_swe_depth(1:nx, 1:partition_ny(idx))[idx+1]
        sfc_pressure(1:nx, ny_start:ny_end) = l_sfc_pressure(1:nx, 1:partition_ny(idx))[idx+1]
        Qm(1:nx, ny_start:ny_end) = l_Qm(1:nx, 1:partition_ny(idx))[idx+1]
@@ -529,14 +632,15 @@ contains
        Tsfc(1:nx, ny_start:ny_end) = l_Tsfc(1:nx, 1:partition_ny(idx))[idx+1]
        snow_d(1:nx, ny_start:ny_end) = l_snow_d(1:nx, 1:partition_ny(idx))[idx+1]
        snow_d_init(1:nx, ny_start:ny_end) = l_snow_d_init(1:nx, 1:partition_ny(idx))[idx+1]
-       tslsnowfall(1:nx, ny_start:ny_end) = l_tslsnowfall(1:nx, 1:partition_ny(idx))[idx+1]
-       change_layer(1:nx, ny_start:ny_end) = l_change_layer(1:nx, 1:partition_ny(idx))[idx+1]
+!       tslsnowfall(1:nx, ny_start:ny_end) = l_tslsnowfall(1:nx, 1:partition_ny(idx))[idx+1]
+!       change_layer(1:nx, ny_start:ny_end) = l_change_layer(1:nx, 1:partition_ny(idx))[idx+1]
        KK(1:nx, ny_start:ny_end) = l_KK(1:nx, 1:partition_ny(idx))[idx+1]
        ro_nsnow(1:nx, ny_start:ny_end) = l_ro_nsnow(1:nx, 1:partition_ny(idx))[idx+1]
        snow_depth(1:nx, ny_start:ny_end) = l_snow_depth(1:nx, 1:partition_ny(idx))[idx+1]
        rain(1:nx, ny_start:ny_end) = l_rain(1:nx, 1:partition_ny(idx))[idx+1]
        sum_runoff(1:nx, ny_start:ny_end) = l_sum_runoff(1:nx, 1:partition_ny(idx))[idx+1]
-       sum_sprec(1:nx, ny_start:ny_end) = l_sum_prec(1:nx, 1:partition_ny(idx))[idx+1]
+       sum_sprec(1:nx, ny_start:ny_end) = l_sum_sprec(1:nx, 1:partition_ny(idx))[idx+1]
+       sum_prec(1:nx, ny_start:ny_end) = l_sum_prec(1:nx, 1:partition_ny(idx))[idx+1]
        runoff(1:nx, ny_start:ny_end) = l_runoff(1:nx, 1:partition_ny(idx))[idx+1]
        xro_snow(1:nx, ny_start:ny_end) = l_xro_snow(1:nx, 1:partition_ny(idx))[idx+1]
        canopy_int(1:nx, ny_start:ny_end) = l_canopy_int(1:nx, 1:partition_ny(idx))[idx+1]
@@ -557,7 +661,7 @@ contains
        Qcs(1:nx, ny_start:ny_end) = l_Qcs(1:nx, 1:partition_ny(idx))[idx+1]
        sum_Qcs(1:nx, ny_start:ny_end) = l_sum_Qcs(1:nx, 1:partition_ny(idx))[idx+1]
        sum_sfcsublim(1:nx, ny_start:ny_end) = l_sum_sfcsublim(1:nx, 1:partition_ny(idx))[idx+1]
-       windspd_2m_grid(1:nx, ny_start:ny_end) = l_windspd_2m_grid(1:nx, 1:partition_ny(idx))[idx+1]
+!       windspd_2m_grid(1:nx, ny_start:ny_end) = l_windspd_2m_grid(1:nx, 1:partition_ny(idx))[idx+1]
        uwind_grid(1:nx, ny_start:ny_end) = l_uwind_grid(1:nx, 1:partition_ny(idx))[idx+1]
        vwind_grid(1:nx, ny_start:ny_end) = l_vwind_grid(1:nx, 1:partition_ny(idx))[idx+1]
     end do

@@ -30,7 +30,7 @@ subroutine READPARAM_CODE(dt,deltax,deltay,Utau_t_flag,&
      &  check_met_data,seaice_run,snowmodel_line_flag,wind_lapse_rate,&
      &  iprecip_scheme,cf_precip_flag,snowfall_frac,print_inc,&
      &  output_path_wo_assim,output_path_wi_assim,Tabler_1_flag,&
-     &  Tabler_2_flag,tabler_sfc_path_name,print_var)
+     &  Tabler_2_flag,tabler_sfc_path_name,print_var,print_parallel)
 
 ! c These programs read and process the input parameter data.
 ! c
@@ -68,7 +68,7 @@ subroutine READPARAM_CODE(dt,deltax,deltay,Utau_t_flag,&
        &  tsls_threshold,dz_snow_min,print_multilayer,&
        &  curve_lg_scale_flag,check_met_data,seaice_run,&
        &  snowmodel_line_flag,wind_lapse_rate,cf_precip_flag,&
-       &  snowfall_frac,Tabler_1_flag,Tabler_2_flag
+       &  snowfall_frac,Tabler_1_flag,Tabler_2_flag,print_parallel
 
   character*1 print_var(n_print_vars)
 
@@ -125,7 +125,7 @@ subroutine READPARAM_CODE(dt,deltax,deltay,Utau_t_flag,&
   integer k,max_par_lines,i_param_chars,i_value_chars,&
        &  icomment_flag,ipar_flag
 
-  integer, parameter :: npars=139
+  integer, parameter :: npars=140
   integer ipar_count
   character*40 cpar_name(npars)
 
@@ -186,7 +186,9 @@ subroutine READPARAM_CODE(dt,deltax,deltay,Utau_t_flag,&
            endif
         endif
 
-        if(nx /= 0 .and. ny /= 0) call allocate_arrays(nx,ny,me)
+        ! if(nx /= 0 .and. ny /= 0) call allocate_arrays(nx,ny,me,lat_solar_flag,seaice_run,&
+        !                                               & UTC_flag,snowmodel_line_flag,&
+        !                                               & print_parallel,print_multilayer)
 
         if (c_param(1:i_param_chars).eq.'deltax') then
            ipar_count = ipar_count + 1
@@ -1348,6 +1350,21 @@ subroutine READPARAM_CODE(dt,deltax,deltay,Utau_t_flag,&
             endif
          endif
 
+         if (c_param(1:i_param_chars).eq.'print_parallel') then
+            ipar_count = ipar_count + 1
+            cpar_name(ipar_count) = c_param(1:i_param_chars)
+            call char2real(print_parallel,i_value_chars,c_value,&
+                 &        c_param(1:i_param_chars))
+            if (print_parallel.ne.1.0 .and. print_parallel.ne.0.0) then
+               print *,'print_parallel not 1.0 or 0.0.  You are'
+               print *,'using some number that is not typical and'
+               print *,'should make certain you and the code are'
+               print *,'doing exactly what you think it is and want'
+               print *,'to do.'
+               stop
+            endif
+         endif
+
          if (c_param(1:i_param_chars).eq.'output_path_wo_assim') then
             ipar_count = ipar_count + 1
             cpar_name(ipar_count) = c_param(1:i_param_chars)
@@ -1745,6 +1762,7 @@ subroutine READPARAM_CODE(dt,deltax,deltay,Utau_t_flag,&
    print_var(28) = print_var_28
    print_var(29) = print_var_29
    print_var(30) = print_var_30
+
 
 ! c Check the input-parameter counting array to be sure that all
 ! c   parameters have been defined.

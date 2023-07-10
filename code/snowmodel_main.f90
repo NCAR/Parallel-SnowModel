@@ -23,7 +23,7 @@ program snowmodel_main
   use caf_module
 
   implicit none
-  REAL :: start,finish
+  real :: start,finish,xlat_main
   integer*8 :: readpar_start,readpar_end, COUNT_RATE
   integer*8 :: preproc_start,preproc_end
   integer*8 :: master_start,master_end
@@ -32,12 +32,16 @@ program snowmodel_main
   integer*8 :: snowpack_start,snowpack_end,total_snowpack_time
   integer*8 :: snowtran_start,snowtran_end,total_snowtran_time
   integer*8 :: output_start,output_end,total_output_time
-  integer*8 :: noninit_start,noninit_end
+  integer*8 :: distribute_start,distribute_end,total_distribute_time
+  integer*8 :: gather_start,gather_end,total_gather_time
+  integer*8 :: noninit_start, noninit_end
   total_micromet_time = 0
   total_enbal_time = 0
   total_snowpack_time = 0
   total_snowtran_time = 0
   total_output_time = 0
+  total_distribute_time = 0
+  total_gather_time = 0
 
   !include 'snowmodel.inc'
   ! include 'snowmodel_vars.inc'
@@ -95,7 +99,13 @@ program snowmodel_main
        &  check_met_data,seaice_run,snowmodel_line_flag,wind_lapse_rate,&
        &  iprecip_scheme,cf_precip_flag,snowfall_frac,print_inc,&
        &  output_path_wo_assim,output_path_wi_assim,Tabler_1_flag,&
-       &  Tabler_2_flag,tabler_sfc_path_name,print_var)
+       &  Tabler_2_flag,tabler_sfc_path_name,print_var,print_parallel)
+
+  if(nx /= 0 .and. ny /= 0) then
+    call allocate_arrays(nx,ny,me,lat_solar_flag,seaice_run,&
+                        & UTC_flag,snowmodel_line_flag,&
+                        & print_parallel,print_multilayer)
+  endif
   if (me == 0) then
     call System_Clock(readpar_end)
   endif
@@ -134,36 +144,45 @@ program snowmodel_main
        call System_Clock(preproc_start)
      endif
 
+     call caf_partitioning()
+     sync all
+
      CALL PREPROCESS_CODE(topoveg_fname,const_veg_flag,&
-          &    vegtype,veg_z0,vegsnowdepth,fetch,xmu,C_z,h_const,&
+          &    l_vegtype,l_veg_z0,vegsnowdepth,fetch,xmu,C_z,h_const,&
           &    wind_min,Up_const,dz_susp,ztop_susp,fall_vel,Ur_const,&
           &    ro_water,ro_air,gravity,vonKarman,pi,twopio360,snow_z0,&
-          &    nx,ny,sum_sprec,sum_qsubl,sum_trans,sum_unload,topo,&
-          &    topo_land,snow_d,topoflag,snow_d_init,snow_d_init_const,&
-          &    soft_snow_d,met_input_fname,igrads_metfile,deltax,deltay,&
+          &    nx,ny,l_sum_sprec,l_sum_qsubl,l_sum_trans,l_sum_unload,l_topo_tmp,&
+          &    l_topo_land,l_snow_d,topoflag,l_snow_d_init,snow_d_init_const,&
+          &    l_soft_snow_d,met_input_fname,igrads_metfile,deltax,deltay,&
           &    snowtran_output_fname,micromet_output_fname,&
           &    enbal_output_fname,snowpack_output_fname,print_micromet,&
           &    print_enbal,print_snowpack,print_snowtran,run_micromet,&
-          &    run_enbal,run_snowpack,run_snowtran,ro_snow_grid,swe_depth,&
-          &    sum_runoff,sum_prec,ro_snow,twolayer_flag,sum_Qcs,&
-          &    canopy_int,ascii_topoveg,topo_ascii_fname,icorr_factor_loop,&
+          &    run_enbal,run_snowpack,run_snowtran,l_ro_snow_grid,l_swe_depth,&
+          &    l_sum_runoff,l_sum_prec,ro_snow,twolayer_flag,l_sum_Qcs,&
+          &    l_canopy_int,ascii_topoveg,topo_ascii_fname,icorr_factor_loop,&
           &    veg_ascii_fname,undef,isingle_stn_flag,max_iter,&
-          &    i_tair_flag,i_rh_flag,i_wind_flag,i_prec_flag,sum_glacmelt,&
-          &    snow_depth,sum_d_canopy_int,corr_factor,icorr_factor_index,&
-          &    sum_sfcsublim,barnes_lg_domain,n_stns_used,k_stn,xmn,ymn,&
-          &    ro_soft_snow_old,sum_swemelt,xlat,lat_solar_flag,xlat_grid,&
-          &    xlon_grid,UTC_flag,dt,swe_depth_old,canopy_int_old,&
-          &    vegsnowd_xy,iveg_ht_flag,ihrestart_flag,i_dataassim_loop,&
+          &    i_tair_flag,i_rh_flag,i_wind_flag,i_prec_flag,l_sum_glacmelt,&
+          &    l_snow_depth,l_sum_d_canopy_int,corr_factor,icorr_factor_index,&
+          &    l_sum_sfcsublim,barnes_lg_domain,n_stns_used,l_k_stn,xmn,ymn,&
+          &    l_ro_soft_snow_old,l_sum_swemelt,xlat,lat_solar_flag,l_xlat_grid,&
+          &    l_xlon_grid,UTC_flag,dt,l_swe_depth_old,l_canopy_int_old,&
+          &    l_vegsnowd_xy,iveg_ht_flag,ihrestart_flag,i_dataassim_loop,&
           &    multilayer_snowpack,max_layers,multilayer_output_fname,&
-          &    print_multilayer,KK,tslsnowfall,tsls_threshold,&
+          &    print_multilayer,l_KK,l_tslsnowfall,tsls_threshold,&
           &    irun_data_assim,izero_snow_date,iclear_mn,iclear_dy,&
           &    xclear_hr,l_snod_layer,l_swed_layer,l_ro_layer,l_T_old,l_gamma,&
-          &    icond_flag,curve_lg_scale_flag,curve_wt_lg,check_met_data,&
+          &    icond_flag,curve_lg_scale_flag,l_curve_wt_lg,check_met_data,&
           &    seaice_run,snowmodel_line_flag,xg_line,yg_line,print_user,&
-          &    cf_precip_flag,cf_precip,print_inc,xhour_init,Tabler_1_flag,&
+          &    cf_precip_flag,l_cf_precip,print_inc,xhour_init,Tabler_1_flag,&
           &    Tabler_2_flag,iyear_init,imonth_init,iday_init,print_var,&
           &    output_path_wo_assim,output_path_wi_assim,nrecs_max,&
           &    tabler_sfc_path_name,print_outvars,l_diam_layer)
+
+      call distribute2(snowmodel_line_flag)
+      call single_gather(topo,l_topo_tmp)
+      call single_gather(topo_land,l_topo_land)
+      xlat_main = l_xlat_grid(1,1)[1] !Distribute for micromet get_lapse_rates()
+      sync all
       if (me == 0) then
         call System_Clock(preproc_end)
       endif
@@ -183,14 +202,7 @@ program snowmodel_main
 
      !c Distribute data to images
 
-     call caf_partitioning()
-
      do iter=iter_start,max_iter
-
-        if (run_snowtran.eq.1.0) then
-           call distribute()
-           sync all
-        endif
 
         !c Distribute the meteorological station data.
         if (run_micromet.eq.1.0) then
@@ -212,10 +224,10 @@ program snowmodel_main
                 &        use_longwave_obs,use_sfc_pressure_obs,l_sfc_pressure,&
                 &        run_enbal,run_snowpack,calc_subcanopy_met,l_vegsnowd_xy,&
                 &        gap_frac,cloud_frac_factor,barnes_lg_domain,n_stns_used,&
-                &        k_stn,xlat_grid,xlon_grid,UTC_flag,icorr_factor_loop,&
-                &        snowmodel_line_flag,xg_line,yg_line,irun_data_assim,&
+                &        l_k_stn,l_xlat_grid,l_xlon_grid,UTC_flag,icorr_factor_loop,&
+                &        snowmodel_line_flag,l_xg_line,l_yg_line,irun_data_assim,&
                 &        wind_lapse_rate,iprecip_scheme,cf_precip_flag,l_cf_precip,&
-                &        l_cloud_frac_grid,snowfall_frac,seaice_run)
+                &        l_cloud_frac_grid,snowfall_frac,seaice_run,xlat_main)
 
           if (me == 0) then
             call System_Clock(micromet_end)
@@ -260,7 +272,7 @@ program snowmodel_main
                 &        l_swemelt,l_d_canopy_int,l_sum_d_canopy_int,l_snow_d_init,&
                 &        l_sfc_pressure,l_Qe,sfc_sublim_flag,l_sum_sfcsublim,&
                 &        l_sum_swemelt,corr_factor,icorr_factor_index,l_swesublim,&
-                &        l_swe_depth_old,l_canopy_int_old,l_KK,max_layers,melt_flag,&
+                &        l_swe_depth_old,l_canopy_int_old,l_KK,max_layers,l_melt_flag,&
                 &        ro_snowmax,tsls_threshold,dz_snow_min,l_tslsnowfall,&
                 &        l_change_layer,l_snod_layer,l_swed_layer,l_ro_layer,l_T_old,l_gamma,&
                 &        multilayer_snowpack,seaice_run,seaice_conc,ht_windobs,&
@@ -285,14 +297,14 @@ program snowmodel_main
                 &        l_dh_susp,l_dh_susp_u,l_dh_susp_v,dt,dz_susp,fall_vel,fetch,&
                 &        gravity,h_const,h_star,ht_rhobs,ht_windobs,index_ue,&
                 &        index_uw,index_vn,index_vs,iter,nx,ny,pi,l_Qsalt,l_Qsalt_max,&
-                &        l_Qsalt_maxu,l_Qsalt_maxv,l_Qsalt_u,Qsalt_v,l_Qsubl,l_Qsusp,&
-                &        l_Qsusp_u,Qsusp_v,l_rh_grid,ro_air,ro_snow,ro_water,l_snow_d,&
+                &        l_Qsalt_maxu,l_Qsalt_maxv,l_Qsalt_u,l_Qsalt_v,l_Qsubl,l_Qsusp,&
+                &        l_Qsusp_u,l_Qsusp_v,l_rh_grid,ro_air,ro_snow,ro_water,l_snow_d,&
                 &        snow_d_init,snow_z0,l_soft_snow_d,l_sprec,l_sum_glacmelt,&
                 &        subgrid_flag,l_wbal_salt,l_wbal_susp,l_wbal_qsubl,l_sum_sprec,&
                 &        l_tabler_ee,l_tabler_ne,l_tabler_nn,l_tabler_nw,l_tabler_se,&
                 &        l_tabler_ss,l_tabler_sw,l_tabler_ww,l_tair_grid,topo,topo_land,&
                 &        topoflag,twolayer_flag,Up_const,Ur_const,Utau,&
-                &        Utau_t,l_uwind_grid,l_veg_z0,l_vegsnowd_xy,vonKarman,&
+                &        l_Utau_t,l_uwind_grid,l_veg_z0,l_vegsnowd_xy,vonKarman,&
                 &        vwind_grid,wind_min,winddir_flag,l_winddir_grid,&
                 &        windspd_flag,l_windspd_grid,xmu,z_0,ztop_susp,max_iter,&
                 &        run_enbal,run_snowpack,l_wbal_subgrid,l_sum_qsubl,l_sum_trans,&
@@ -313,15 +325,28 @@ program snowmodel_main
                 total_snowtran_time = total_snowtran_time + (snowtran_end - snowtran_start)
             endif
         endif
-        if (me == 0) then
-          call System_Clock(output_start)
+        if (print_parallel.eq.0.0) then
+          if (me == 0) then
+            call System_Clock(gather_start)
+          endif
+          call gather(print_multilayer)
+          sync all
+          if (me == 0) then
+            call System_Clock(gather_end)
+            total_gather_time = total_gather_time + (gather_end - gather_start)
+            call System_Clock(output_start)
+          endif
+        else
+          if (me==0) then
+            call System_Clock(gather_start)
+            call System_Clock(gather_end)
+            total_gather_time = total_gather_time + (gather_end - gather_start)
+            call System_Clock(output_start)
+          endif
         endif
-        call gather()
 
         !Required by the presence of "distribute" at the beginning of the main loop
-        call single_gather(curve_wt_lg,l_curve_wt_lg)
-        call single_gather(ro_soft_snow,l_ro_soft_snow)
-        call single_gather(ro_soft_snow_old,l_ro_soft_snow_old)
+!        call single_gather(curve_wt_lg,l_curve_wt_lg)
 
         ! c If this is a sea ice run with incremental remapping, perform the
         ! c   remapping here, before any data is written out for this time step.
@@ -336,7 +361,8 @@ program snowmodel_main
         ! c   (nz_max), because it may have been filled with snow at some point
         ! c   during the simulation.
         if (run_snowpack .eq. 1.0 .and. multilayer_snowpack .eq. 1 .and. &
-             &      print_multilayer.eq.1.0 .and. me == 0) then
+             &      print_multilayer.eq.1.0 .and. me == 0 .and. &
+             &      print_parallel.eq.0.0) then
            write(401,rec=iter)&
                 &        ((real(KK(i,j)),i=1,nx),j=1,ny),&
                 &        ((snow_depth(i,j),i=1,nx),j=1,ny),&
@@ -347,7 +373,8 @@ program snowmodel_main
                 &        (((swed_layer(i,j,k),i=1,nx),j=1,ny),k=1,nz_max),&
                 &        (((diam_layer(i,j,k),i=1,nx),j=1,ny),k=1,nz_max)
         elseif (run_snowpack .eq. 1.0 .and. multilayer_snowpack .eq. 1 &
-             &      .and. print_multilayer .eq. 2.0 .and. me == 0) then
+             &      .and. print_multilayer .eq. 2.0 .and. me == 0 .and. &
+             &      print_parallel.eq.0.0) then
            write(401,rec=iter) &
                 &        ((real(KK(i,j)),i=1,nx),j=1,ny),&
                 &        ((snow_depth(i,j),i=1,nx),j=1,ny),&
@@ -369,7 +396,7 @@ program snowmodel_main
                 &        (((gamma(i,j,k),i=1,nx),j=1,ny),k=1,nz_max)
         endif
 
-        if (print_micromet.eq.1.0 .and. me == 0) then
+        if (print_micromet.eq.1.0 .and. me == 0 .and. print_parallel.eq.0.0) then
            write(81,rec=iter)&
                 &          ((Tair_grid(i,j)-273.15,i=1,nx),j=1,ny),&
                 &          ((rh_grid(i,j),i=1,nx),j=1,ny),&
@@ -382,7 +409,7 @@ program snowmodel_main
                 &          ((prec_grid(i,j),i=1,nx),j=1,ny)
         endif
 
-        if (print_enbal.eq.1.0 .and. me == 0) then
+        if (print_enbal.eq.1.0 .and. me == 0 .and. print_parallel.eq.0.0) then
            write(82,rec=iter) &
                 &          ((Tair_grid(i,j)-273.15,i=1,nx),j=1,ny),&
                 &          ((Tsfc(i,j)-273.15,i=1,nx),j=1,ny),&
@@ -398,7 +425,8 @@ program snowmodel_main
         endif
 
         !c Save the outputs from the SNOWPACK and SNOWTRAN routines.
-        if (run_snowpack.eq.1.0 .and. print_snowpack.eq.1.0 .and. me == 0) then
+        if (run_snowpack.eq.1.0 .and. print_snowpack.eq.1.0 .and. me == 0 .and. &
+             &    print_parallel.eq.0.0) then
            write(83,rec=iter)&
                 &        ((snow_depth(i,j),i=1,nx),j=1,ny),&
                 &        ((xro_snow(i,j),i=1,nx),j=1,ny),&
@@ -418,7 +446,8 @@ program snowmodel_main
                 &        ((w_balance(i,j),i=1,nx),j=1,ny)
         endif
 
-        if (run_snowtran.eq.1.0 .and. print_snowtran.eq.1.0 .and. me == 0) then
+        if (run_snowtran.eq.1.0 .and. print_snowtran.eq.1.0 .and. me == 0 .and. &
+            &     print_parallel.eq.0.0) then
            write(84,rec=iter)&
                 &        ((snow_d(i,j),i=1,nx),j=1,ny),&
                 &        ((wbal_qsubl(i,j),i=1,nx),j=1,ny),&
@@ -434,7 +463,7 @@ program snowmodel_main
         ! c   outputs.  These might be special-case situations, like just
         ! c   writing out data at the end of every day, writing out a few
         ! c   grid cells, saving each data arrays to individual files, etc.
-        if (print_user .eq. 1.0 .and. me == 0) then
+        if (print_user .eq. 1.0 .and. me == 0 .and. print_parallel .eq. 0.0) then
            CALL OUTPUTS_USER(nx,ny,iter,Tair_grid,rh_grid,&
                 &        uwind_grid,vwind_grid,windspd_grid,winddir_grid,&
                 &        Qsi_grid,Qli_grid,prec_grid,Tsfc,Qle,Qh,Qe,Qc,Qm,Qf,&
@@ -450,6 +479,24 @@ program snowmodel_main
                 &        seaice_run,print_inc,cloud_frac_grid,&
                 &        output_path_wo_assim,output_path_wi_assim,print_var,&
                 &        print_outvars,Qsubl_depth,Qsalt,Qsusp)
+        endif
+
+        if (print_user .eq. 1.0 .and. print_parallel .eq. 1.0) then
+           CALL OUTPUTS_PARALLEL(nx,l_ny,iter,l_Tair_grid,l_rh_grid,&
+                &        l_uwind_grid,l_vwind_grid,l_windspd_grid,l_winddir_grid,&
+                &        l_Qsi_grid,l_Qli_grid,l_prec_grid,l_Tsfc,l_Qle,l_Qh,l_Qe,l_Qc,l_Qm,l_Qf,&
+                &        l_e_balance,l_snow_depth,l_xro_snow,l_swe_depth,l_ro_nsnow,&
+                &        l_runoff,l_rain,l_sprec,l_sum_prec,l_sum_runoff,l_w_balance,&
+                &        l_snow_d,topo_land,l_wbal_qsubl,l_sum_sprec,l_wbal_salt,&
+                &        l_wbal_susp,l_ro_snow_grid,l_sum_Qcs,l_canopy_int,l_Qcs,&
+                &        iyear,imonth,iday,xhour,undef,deltax,xmn,ymn,&
+                &        l_wbal_subgrid,l_canopy_unload,l_sum_qsubl,l_sum_trans,&
+                &        l_sum_unload,l_sum_glacmelt,l_glacier_melt,l_swemelt,&
+                &        l_sfc_pressure,l_sum_swemelt,l_albedo,nrecs_max,&
+                &        icorr_factor_loop,l_swesublim,l_vegtype,iter_start,&
+                &        seaice_run,print_inc,l_cloud_frac_grid,&
+                &        output_path_wo_assim,output_path_wi_assim,print_var,&
+                &        print_outvars,l_Qsubl_depth,l_Qsalt,l_Qsusp)
         endif
 
         ! c For multi-year simulations, sometimes it is desirable to zero
@@ -506,12 +553,14 @@ program snowmodel_main
   if (me == 0) then
     print*, "ReadParam Time : ",  ((readpar_end-readpar_start) / real(COUNT_RATE))
     print*, "Preproc Time : ",  ((preproc_end-preproc_start) / real(COUNT_RATE))
+    print*, "Distribute Time : ",  ((total_distribute_time) / real(COUNT_RATE))
     print*, "Micromet Time : ",  ((total_micromet_time) / real(COUNT_RATE))
     print*, "Enbal Time : ",  ((total_enbal_time) / real(COUNT_RATE))
     print*, "Snowpack Time : ",  ((total_snowpack_time) / real(COUNT_RATE))
     print*, "SnowTran Time : ",  ((total_snowtran_time) / real(COUNT_RATE))
+    print*, "Gather Time : ",  ((total_gather_time) / real(COUNT_RATE))
     print*, "Output Time : ",  ((total_output_time) / real(COUNT_RATE))
-    print*, "Master NonInit Time : ", ((noninit_end - noninit_start) / real(COUNT_RATE))
+    print*, "Master Noninit Time : ", ((noninit_end - noninit_start) / real(COUNT_RATE))
     print*, "Master Total Time : ", ((master_end - master_start) / real(COUNT_RATE))
   endif
   print *

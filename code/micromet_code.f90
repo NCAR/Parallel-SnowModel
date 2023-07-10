@@ -21,10 +21,10 @@ subroutine MICROMET_CODE(nx,ny,xmn,ymn,deltax,deltay,&
      &  k_stn,xlat_grid,xlon_grid,UTC_flag,icorr_factor_loop,&
      &  snowmodel_line_flag,xg_line,yg_line,irun_data_assim,&
      &  wind_lapse_rate,iprecip_scheme,cf_precip_flag,cf_precip,&
-     &  cloud_frac_grid,snowfall_frac,seaice_run)
+     &  cloud_frac_grid,snowfall_frac,seaice_run,xlat_main)
 
   use snowmodel_inc
-  use caf_module, only: l_ny, max_l_ny, max_l_nx, me
+  use caf_module, only: l_ny, max_l_ny, max_l_nx, me, prefix_sum
   implicit none
 
 !      include 'snowmodel.inc'
@@ -37,7 +37,7 @@ subroutine MICROMET_CODE(nx,ny,xmn,ymn,deltax,deltay,&
   double precision ymn  ! center y coords of lower left grid cell
   integer nstns_orig ! number of input values
 
-  double precision xg_line(nx,ny),yg_line(nx,ny)
+  double precision xg_line(nx,max_l_ny),yg_line(nx,max_l_ny)
   real snowmodel_line_flag
 
   double precision xstn_orig(nstns_max)     ! input stn x coords
@@ -50,8 +50,8 @@ subroutine MICROMET_CODE(nx,ny,xmn,ymn,deltax,deltay,&
   real elev_orig(nstns_max)     ! station elevation
   real dn                  ! average observation spacing
   real topo(nx,ny) ! grid topography
-  real xlat_grid(nx,ny) ! lat (dec deg) of cell centers
-  real xlon_grid(nx,ny) ! lon (dec deg) of cell centers
+  real xlat_grid(nx,max_l_ny) ! lat (dec deg) of cell centers
+  real xlon_grid(nx,max_l_ny) ! lon (dec deg) of cell centers
 
   real Tair_grid(nx,max_l_ny)   ! output values
   real rh_grid(nx,max_l_ny)     ! output values
@@ -78,6 +78,7 @@ subroutine MICROMET_CODE(nx,ny,xmn,ymn,deltax,deltay,&
   real undef       ! undefined value
   integer ifill    ! flag (=1) forces a value in every cell
   integer iobsint  ! flag (=1) use dn value from .par file
+  integer byte_index !Byte index for each processor to begin reading files
 
   real curvature(nx,max_l_ny)     ! topographic curvature
   real slope_az(nx,max_l_ny)      ! azimuth of topographic slope
@@ -85,7 +86,7 @@ subroutine MICROMET_CODE(nx,ny,xmn,ymn,deltax,deltay,&
   real vegtype(nx,max_l_ny)
   real vegsnowd_xy(nx,max_l_ny)
   real, save, allocatable :: topo_ref_grid(:,:)!(max_l_nx,max_l_ny) ! reference surface
-  
+
   real curve_len_scale   ! length scale for curvature calculation
   real slopewt           ! wind model slope weight
   real curvewt           ! wind model curvature weight
@@ -106,7 +107,7 @@ subroutine MICROMET_CODE(nx,ny,xmn,ymn,deltax,deltay,&
 
   real corr_factor(nx_max,ny_max,max_obs_dates+1)
   integer icorr_factor_index(max_time_steps)
-  integer k_stn(nx,ny,9)
+  integer k_stn(nx,max_l_ny,9)
 
   real cf_precip(nx,max_l_ny)
   real cf_precip_flag
@@ -116,6 +117,7 @@ subroutine MICROMET_CODE(nx,ny,xmn,ymn,deltax,deltay,&
 
   real seaice_run
   integer i,j,irec,irec_day
+  real xlat_main
 
 ! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
   ! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -124,7 +126,7 @@ subroutine MICROMET_CODE(nx,ny,xmn,ymn,deltax,deltay,&
      allocate(topo_ref_grid(max_l_nx,max_l_ny))
      topo_ref_grid = 0.0
   end if
-  
+
 ! c Calculate what the current simulation date should be.
   call get_model_time(iyear_init,imonth_init,iday_init,&
        &  xhour_init,iter,dt,iyear,imonth,iday,xhour,J_day)
@@ -156,7 +158,7 @@ subroutine MICROMET_CODE(nx,ny,xmn,ymn,deltax,deltay,&
 ! c Calculate the temperature and dew-point lapse rates to be used in
 ! c   the interpoations.
   call get_lapse_rates(imonth,iday,T_lapse_rate,&
-       &  Td_lapse_rate,xlat_grid(1,1),lapse_rate_user_flag,&
+       &  Td_lapse_rate,xlat_main,lapse_rate_user_flag,&
        &  precip_lapse_rate,iprecip_lapse_rate_user_flag)
 
 ! c Calculate the forest lai for each of the five forest types, and
@@ -168,18 +170,18 @@ subroutine MICROMET_CODE(nx,ny,xmn,ymn,deltax,deltay,&
 ! c   extract the lat-lon of the parcels at this time step.  Note
 ! c   that these files have daily data in them, so the record has
 ! c   to be adjusted to account for this.
-  if (seaice_run.eq.4.0) then 
+  if (seaice_run.eq.4.0) then
 
-     if (iter.eq.1) then 
+     if (iter.eq.1) then
         open (91,file='extra_met/grid_lat_time.gdat',&
-             &      form='unformatted',access='direct',recl=4*nx*ny)
+             &    form='unformatted',access='stream')
         open (92,file='extra_met/grid_lon_time.gdat',&
-             &      form='unformatted',access='direct',recl=4*nx*ny)
+             &      form='unformatted',access='stream')
      endif
 
-     if (dt.eq.86400.0) then 
-        irec = iter 
-     elseif (dt.eq.10800.0) then 
+     if (dt.eq.86400.0) then
+        irec = iter
+     elseif (dt.eq.10800.0) then
         call get_daily_irec (iter,dt,irec_day)
         irec = irec_day
      else
@@ -189,8 +191,10 @@ subroutine MICROMET_CODE(nx,ny,xmn,ymn,deltax,deltay,&
         stop
      endif
 
-     read (91,rec=irec) ((xlat_grid(i,j),i=1,nx),j=1,ny)
-     read (92,rec=irec) ((xlon_grid(i,j),i=1,nx),j=1,ny)
+     byte_index = (4*prefix_sum(me)*nx)+1
+     read (91,pos=byte_index) ((xlat_grid(i,j),i=1,nx),j=1,l_ny)
+     read (92,pos=byte_index) ((xlon_grid(i,j),i=1,nx),j=1,l_ny)
+!     read (92,rec=irec) ((xlon_grid(i,j),i=1,nx),j=1,ny)
 
   endif
 
@@ -295,7 +299,7 @@ subroutine MICROMET_CODE(nx,ny,xmn,ymn,deltax,deltay,&
           &    iprecip_scheme,cf_precip_flag,cf_precip,snowfall_frac,&
           &    seaice_run)
   endif
-      
+
 ! c SURFACE PRESSURE.
 ! c Surface pressure is used in EnBal and SnowMass.  If needed for
 ! c   this SnowModel simulation, calculate the distribution here.
@@ -318,7 +322,7 @@ subroutine MICROMET_CODE(nx,ny,xmn,ymn,deltax,deltay,&
 
   return
 end subroutine MICROMET_CODE
- 
+
 ! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -339,9 +343,9 @@ subroutine precipitation(nx,ny,deltax,deltay,xmn,ymn,&
 ! c   the precipitation on the actual elevation grid.  The reason the
 ! c   interpolated station elevations are used as the topographic
 ! c   reference surface (instead of something like sea level), is
-! c   because the precipitation adjustment factor is a non-linear 
+! c   because the precipitation adjustment factor is a non-linear
 ! c   function of elevation difference.
- 
+
 ! c The adjustment factor that is used comes from: Thornton, P. E.,
 ! c   S. W. Running, and M. A. White, 1997: Generating surfaces of
 ! c   daily meteorological variables over large regions of complex
@@ -360,7 +364,7 @@ subroutine precipitation(nx,ny,deltax,deltay,xmn,ymn,&
   double precision xmn  ! center x coords of lower left grid cell
   double precision ymn  ! center y coords of lower left grid cell
 
-  double precision xg_line(nx,ny),yg_line(nx,ny)
+  double precision xg_line(nx,max_l_ny),yg_line(nx,max_l_ny)
   real snowmodel_line_flag
 
   integer nstns        ! number of input values, all good
@@ -392,7 +396,7 @@ subroutine precipitation(nx,ny,deltax,deltay,xmn,ymn,&
   real delta_topo,alfa,Tf,precip_lapse_rate_m,precip_lapse_rate,&
        &  barnes_lg_domain
   integer i,j,iter,n_stns_used
-  integer k_stn(nx,ny,9)
+  integer k_stn(nx,max_l_ny,9)
 
   real corr_factor(nx_max,ny_max,max_obs_dates+1)
   integer icorr_factor_index(max_time_steps)
@@ -458,11 +462,11 @@ subroutine precipitation(nx,ny,deltax,deltay,xmn,ymn,&
 
 !c This is van Pelt's precipitation adjustment scheme.
   elseif (iprecip_scheme.eq.2) then
-     
+
      do j=1,l_ny
         new_j = global_map(j)
         do i=1,nx
-     
+
 !c Don't correct precipitation above 1000 m a.s.l..
            if (topo_ref_grid(i,j).le.1000.0) then
               if (topo(i,new_j).gt.1000.0) then
@@ -473,12 +477,12 @@ subroutine precipitation(nx,ny,deltax,deltay,xmn,ymn,&
            endif
            if (topo_ref_grid(i,j).gt.1000.0) then
               if (topo(i,new_j).gt.1000.0) then
-                 delta_topo = 0.0 
+                 delta_topo = 0.0
               else
                  delta_topo = topo(i,new_j) - 1000.0
               endif
            endif
-                
+
 ! c Don't let the elevation difference be greater than some number
 ! c  (like 1800 meters gives a factor of 4.4).  If it is too large
 ! c   you get huge precipitation adjustment, a divide by zero, or
@@ -486,12 +490,12 @@ subroutine precipitation(nx,ny,deltax,deltay,xmn,ymn,&
            delta_topo = min(delta_topo,1800.0)
            alfa = 1.75 * delta_topo / 1000.0
            prec_grid(i,j) = prec_grid(i,j) * max(1.0+alfa,0.1)
-           
+
         enddo
      enddo
-     
+
   endif
-  
+
 ! c Convert the precipitation values from mm to m swe.  Also, make
 ! c   sure the interpolation has not created any negetive
 ! c   precipitation values.
@@ -557,7 +561,7 @@ subroutine precipitation(nx,ny,deltax,deltay,xmn,ymn,&
 
 !c Auer (1974); a rain-snow threshold at +2.0 C.
   if (snowfall_frac.eq.1.0) then
-     
+
      do j=1,l_ny
         do i=1,nx
            Tair_C = Tair_grid(i,j) - Tf
@@ -581,7 +585,7 @@ subroutine precipitation(nx,ny,deltax,deltay,xmn,ymn,&
         do i=1,nx
            Tair_C = Tair_grid(i,j) - Tf
            snowfall_frac_2 = - 0.482292 * &
-                &        (tanh(0.7205 * (Tair_C - 1.1662)) - 1.0223) 
+                &        (tanh(0.7205 * (Tair_C - 1.1662)) - 1.0223)
            if (Tair_C.lt.-4.0) then
               snowfall_frac_2 = 1.0
            elseif (Tair_C.gt.6.0) then
@@ -605,18 +609,18 @@ subroutine precipitation(nx,ny,deltax,deltay,xmn,ymn,&
      do j=1,l_ny
         do i=1,nx
            Tair_C = Tair_grid(i,j) - Tf
-           
+
 !c Solve the equation in the form y = m*x + b
            snowfall_frac_3 = slope * Tair_C + b
            snowfall_frac_3 = max(0.0,snowfall_frac_3)
            snowfall_frac_3 = min(1.0,snowfall_frac_3)
-           
+
            sprec(i,j) = snowfall_frac_3 * prec_grid(i,j)
         enddo
      enddo
-     
+
   endif
-  
+
   return
 end subroutine precipitation
 
@@ -632,7 +636,7 @@ subroutine longwave(nx,ny,rh_grid,Tair_grid,Qli_grid,topo,&
   implicit none
 
 !      include 'snowmodel.inc'
-  
+
   integer nx       ! number of x output values
   integer ny       ! number of y output values
 
@@ -783,8 +787,8 @@ subroutine solar(nx,ny,xhour,J_day,topo,rh_grid,Tair_grid,&
   real slope_az(nx,max_l_ny)
   real terrain_slope(nx,max_l_ny)
   real vegtype(nx,max_l_ny)
-  real xlat_grid(nx,ny)
-  real xlon_grid(nx,ny)
+  real xlat_grid(nx,max_l_ny)
+  real xlon_grid(nx,max_l_ny)
   real cloud_frac_grid(nx,max_l_ny)
 
   real xhour                 ! model decimal hour
@@ -798,7 +802,7 @@ subroutine solar(nx,ny,xhour,J_day,topo,rh_grid,Tair_grid,&
   integer, parameter :: nftypes = 5
   real forest_LAI(nftypes)
   integer :: new_j
-  
+
   ihrs_day = 24
 
   do j=1,l_ny
@@ -818,16 +822,16 @@ subroutine solar(nx,ny,xhour,J_day,topo,rh_grid,Tair_grid,&
 ! c   the incoming solar radiation every 3 hours and then taking the
 ! c   average.
         if (dt.le.10800.0) then
-           call solar_rad(Qsi_grid(i,j),J_day,xlat_grid(i,new_j),&
+           call solar_rad(Qsi_grid(i,j),J_day,xlat_grid(i,j),&
                 &        cloud_frac,xhour,slope_az(i,j),terrain_slope(i,j),&
-                &        UTC_flag,xlon_grid(i,new_j))
+                &        UTC_flag,xlon_grid(i,j))
         elseif (dt.eq.86400.0) then
            Qsi_sum = 0.0
            do ihour=3,ihrs_day,3
               xxhour = real(ihour)
-              call solar_rad(Qsi_tmp,J_day,xlat_grid(i,new_j), &
+              call solar_rad(Qsi_tmp,J_day,xlat_grid(i,j), &
                    &          cloud_frac,xxhour,slope_az(i,j),terrain_slope(i,j),&
-              &          UTC_flag,xlon_grid(i,new_j))
+              &          UTC_flag,xlon_grid(i,j))
               Qsi_sum = Qsi_sum + Qsi_tmp
            enddo
            Qsi_grid(i,j) = Qsi_sum / (real(ihrs_day)/3.0)
@@ -849,14 +853,14 @@ subroutine solar(nx,ny,xhour,J_day,topo,rh_grid,Tair_grid,&
 !c Account for any gaps in the forest canopy that will allow
 !c   direct incoming solar radiation to reach the snow surface.
               trans_veg = gap_frac * (1.0 - trans_veg) + trans_veg
-              
+
               Qsi_grid(i,j) = trans_veg * Qsi_grid(i,j)
            endif
         endif
-        
+
      enddo
   enddo
-  
+
   return
 end subroutine solar
 
@@ -964,7 +968,7 @@ subroutine solar_rad(Qsi,J_day,xlat,&
 !c Compute the solar declination angle (radians).
   sol_dec = Trop_Can * &
        &  cos(2.*pi * (real(J_day) - solstice)/days_yr)
-      
+
 ! c For the case of running UTC time and a latitudinal variation
 ! c   in solar radiation, adjust the time to correspond to the
 ! c   local time at this longitude position.
@@ -975,7 +979,7 @@ subroutine solar_rad(Qsi,J_day,xlat,&
   else
      xxxhour = xxhour
   endif
-  
+
 !c Compute the sun's hour angle (radians).
   hr_angl = (xxxhour * 15.0 - 180.0) * deg2rad
 
@@ -995,7 +999,7 @@ subroutine solar_rad(Qsi,J_day,xlat,&
   Qsi_trans_dif = solar_const * trans_diffuse
 
 !c COMPUTE THE CORRECTIONS TO ALLOW FOR TOPOGRAPHIC SLOPE AND ASPECT.
-  
+
 !c The sine of the solar zenith angle.
   sin_Z = sqrt(1.0 - cos_Z*cos_Z)
 
@@ -1023,7 +1027,7 @@ subroutine solar_rad(Qsi,J_day,xlat,&
 ! c       endif
   endif
 
-! c Build, from the variable with north having zero azimuth, a 
+! c Build, from the variable with north having zero azimuth, a
 ! c   slope_azimuth value with south having zero azimuth.  Also
 ! c   make north have zero azimuth if in the southern hemsisphere.
   if (xlat.ge.0.0) then
@@ -1044,7 +1048,7 @@ subroutine solar_rad(Qsi,J_day,xlat,&
        &  cos(sun_azimuth - slope_az_S0 * deg2rad)
 
 ! c Adjust the topographic correction due to local slope so that
-! c   the correction is zero if the sun is below the local horizon 
+! c   the correction is zero if the sun is below the local horizon
 ! c   (i.e., the slope is in the shade) or if the sun is below the
 ! c   global horizon.
   if (cos_i.lt.0.0) cos_i = 0.0
@@ -1090,7 +1094,7 @@ subroutine wind(nx,ny,deltax,deltay,xmn,ymn,windspd_orig,&
   implicit none
 
 !      include 'snowmodel.inc'
-  
+
   integer nx       ! number of x output values
   integer ny       ! number of y output values
   real deltax      ! grid increment in x
@@ -1098,7 +1102,7 @@ subroutine wind(nx,ny,deltax,deltay,xmn,ymn,windspd_orig,&
   double precision xmn  ! center x coords of lower left grid cell
   double precision ymn  ! center y coords of lower left grid cell
 
-  double precision xg_line(nx,ny),yg_line(nx,ny)
+  double precision xg_line(nx,max_l_ny),yg_line(nx,max_l_ny)
   real snowmodel_line_flag
 
   integer nstns        ! number of input values, all good
@@ -1144,14 +1148,14 @@ subroutine wind(nx,ny,deltax,deltay,xmn,ymn,windspd_orig,&
 
   real pi,deg2rad,rad2deg,slopewt,curvewt,curve_len_scale
   integer i,j,k,n_stns_used
-  integer k_stn(nx,ny,9)
+  integer k_stn(nx,max_l_ny,9)
   integer :: new_j
   real windspd_flag,winddir_flag,u_sum,v_sum,windspd_min,&
        &  calc_subcanopy_met,barnes_lg_domain,wind_lapse_rate,&
        &  delta_topo,alfa1,alfa2
 
   integer,parameter ::nftypes=5
-      
+
   real forest_LAI(nftypes)
   real seaice_run
 
@@ -1209,7 +1213,7 @@ subroutine wind(nx,ny,deltax,deltay,xmn,ymn,windspd_orig,&
         enddo
      enddo
   endif
-  
+
 !c Convert these u and v components to speed and directions.
   do j=1,l_ny
      do i=1,nx
@@ -1217,7 +1221,7 @@ subroutine wind(nx,ny,deltax,deltay,xmn,ymn,windspd_orig,&
 ! c Some compilers do not allow both u and v to be 0.0 in
 ! c   the atan2 computation.
         if (abs(u_grid(i,j)).lt.1e-10) u_grid(i,j) = 1e-10
-        
+
         winddir_grid(i,j) = rad2deg * atan2(u_grid(i,j),v_grid(i,j))
         if (winddir_grid(i,j).ge.180.0) then
            winddir_grid(i,j) = winddir_grid(i,j) - 180.0
@@ -1316,9 +1320,9 @@ subroutine relative_humidity(nx,ny,deltax,deltay,xmn,ymn,&
   use caf_module, only: max_l_ny, l_ny, global_map
   use snowmodel_inc
   implicit none
-  
+
   !    include 'snowmodel.inc'
-  
+
   integer nx       ! number of x output values
   integer ny       ! number of y output values
   real deltax      ! grid increment in x
@@ -1326,7 +1330,7 @@ subroutine relative_humidity(nx,ny,deltax,deltay,xmn,ymn,&
   double precision xmn  ! center x coords of lower left grid cell
   double precision ymn  ! center y coords of lower left grid cell
 
-  double precision xg_line(nx,ny),yg_line(nx,ny)
+  double precision xg_line(nx,max_l_ny),yg_line(nx,max_l_ny)
   real snowmodel_line_flag
 
   integer nstns        ! number of input values, all good
@@ -1362,7 +1366,7 @@ subroutine relative_humidity(nx,ny,deltax,deltay,xmn,ymn,&
   real Td_lapse_rate,topo_ref,delta_topo,A,B,C,e,es,Tf,&
        &  barnes_lg_domain
   integer i,j,k,n_stns_used
-  integer k_stn(nx,ny,9)
+  integer k_stn(nx,max_l_ny,9)
   real seaice_run
 
   integer :: new_j
@@ -1473,7 +1477,7 @@ subroutine temperature(nx,ny,deltax,deltay,xmn,ymn,&
   implicit none
 
   !include 'snowmodel.inc'
-  
+
   integer nx       ! number of x output values
   integer ny       ! number of y output values
   real deltax      ! grid increment in x
@@ -1481,7 +1485,7 @@ subroutine temperature(nx,ny,deltax,deltay,xmn,ymn,&
   double precision xmn  ! center x coords of lower left grid cell
   double precision ymn  ! center y coords of lower left grid cell
 
-  double precision xg_line(nx,ny),yg_line(nx,ny)
+  double precision xg_line(nx,max_l_ny),yg_line(nx,max_l_ny)
   real snowmodel_line_flag
 
   integer nstns        ! number of input values, all good
@@ -1509,7 +1513,7 @@ subroutine temperature(nx,ny,deltax,deltay,xmn,ymn,&
 
   real T_lapse_rate,topo_ref,delta_topo,barnes_lg_domain
   integer i,j,k,n_stns_used
-  integer k_stn(nx,ny,9)
+  integer k_stn(nx,max_l_ny,9)
   real seaice_run
 
   integer :: new_j
@@ -1607,9 +1611,9 @@ subroutine topo_mod_winds(nx,ny,winddir_grid,slopewt,curvewt,&
         wslope_max = max(wslope_max,abs(wind_slope(i,j)))
      enddo
   enddo
-  
+
   call co_max(wslope_max)
-  
+
   do j=1,l_ny
      do i=1,nx
         wind_slope(i,j) = wind_slope(i,j) / (2.0 * wslope_max)
@@ -1713,7 +1717,7 @@ subroutine topo_mod_winds(nx,ny,winddir_grid,slopewt,curvewt,&
              &      cos(deg2rad*winddir_grid(i,j))
      enddo
   enddo
-  
+
   return
 end subroutine topo_mod_winds
 
@@ -1838,7 +1842,7 @@ subroutine topo_data(nx,ny,deltax,deltay,topo,&
 ! c           if (abs(dzdx(i,j)).lt.1e-10) dzdx(i,j) = 1e-10
            if (abs(dzdy(i,j)).lt.1e-10) dzdy(i,j) = 1e-10
            if (abs(dzdx(i,j)).lt.1e-10) dzdx(i,j) = 1e-10
-           
+
 ! c Compute the slope azimuth, making sure that north has zero
 ! c   azimuth.  Also note that for the Ryan wind rotation, the
 ! c   azimuth values must range from 0 to 360.
@@ -1870,7 +1874,7 @@ subroutine interpolate(nx,ny,deltax,deltay,xmn,ymn,&
   use caf_module, only: max_l_ny, l_ny, global_map
   use snowmodel_inc
   implicit none
-      
+
    !   include 'snowmodel.inc'
 
   integer nx       ! number of x output values
@@ -1880,7 +1884,7 @@ subroutine interpolate(nx,ny,deltax,deltay,xmn,ymn,&
   double precision xmn  ! center x coords of lower left grid cell
   double precision ymn  ! center y coords of lower left grid cell
 
-  double precision xg_line(nx,ny),yg_line(nx,ny)
+  double precision xg_line(nx,max_l_ny),yg_line(nx,max_l_ny)
   real snowmodel_line_flag
 
   double precision xstn(nstns_max) ! input stn x coords
@@ -1903,7 +1907,7 @@ subroutine interpolate(nx,ny,deltax,deltay,xmn,ymn,&
   integer iyear,imonth,iday  ! model year, month, and day
   real xhour                 ! model decimal hour
 
-  integer k_stn(nx,ny,9)
+  integer k_stn(nx,max_l_ny,9)
   integer k,n_stns_used
   real barnes_lg_domain,seaice_run
   integer :: new_j
@@ -1957,20 +1961,20 @@ subroutine interpolate(nx,ny,deltax,deltay,xmn,ymn,&
 ! c Use that nearest station list to extract the station information
 ! c   to be used in the interpolation.
                  do k=1,n_stns_used
-                    xstn_tmp(k) = xstn(k_stn(i,new_j,k))
-                    ystn_tmp(k) = ystn(k_stn(i,new_j,k))
-                    var_tmp(k) = var(k_stn(i,new_j,k))
+                    xstn_tmp(k) = xstn(k_stn(i,j,k))
+                    ystn_tmp(k) = ystn(k_stn(i,j,k))
+                    var_tmp(k) = var(k_stn(i,j,k))
                  enddo
 !c Do the interpolation for this model grid cell.
                  call barnes_oi_ij(nx,ny,deltax,deltay,xmn,ymn,&
                       &            n_stns_used,xstn_tmp,ystn_tmp,var_tmp,dn,grid,&
                       &            undef,ifill,i,j,snowmodel_line_flag,xg_line,yg_line)
-                 
+
               enddo
            enddo
-           
+
         else
-           
+
            call barnes_oi(nx,ny,deltax,deltay,xmn,ymn, &
                 &        nstns,xstn,ystn,var,dn,grid,undef,ifill)
 
@@ -1978,17 +1982,17 @@ subroutine interpolate(nx,ny,deltax,deltay,xmn,ymn,&
 
      elseif (nstns.eq.1) then
         call single_stn(nx,ny,nstns,var,grid)
-        
+
      else
 
         print *,'found no valid obs data at this time step'
         print *,'  model time =', iyear,imonth,iday,xhour
         stop
-        
+
      endif
-     
+
   endif
-  
+
   return
 end subroutine interpolate
 
@@ -2004,28 +2008,28 @@ subroutine get_nearest_stns_2(nx,ny,xmn,ymn,deltax,deltay,&
   implicit none
 
 !      include 'snowmodel.inc'
-  
+
   double precision xstn(nstns_max)
   double precision ystn(nstns_max)
   double precision dsq(nstns_max)
-  double precision xg_line(nx,ny),yg_line(nx,ny)
+  double precision xg_line(nx,max_l_ny),yg_line(nx,max_l_ny)
   real snowmodel_line_flag
 
   double precision xg,yg,xmn,ymn,dist_min
   real deltax,deltay
 
   integer i,j,k,kk,nstns,n_stns_used,nx,ny
-  integer k_stn(nx,ny,9)
+  integer k_stn(nx,max_l_ny,9)
   integer :: new_j
-  
+
   do j=1,l_ny
      new_j = global_map(j)
      do i=1,nx
 !c xcoords of grid nodes at index i,j
 !c ycoords of grid nodes at index i,j
         if (snowmodel_line_flag.eq.1.0) then
-           xg = xg_line(i,new_j)
-           yg = yg_line(i,new_j)
+           xg = xg_line(i,j)
+           yg = yg_line(i,j)
         elseif (snowmodel_line_flag.eq.0.0) then
            print *, 'This can be very slow.  I suggest you study'
            print *, 'and implement some version of the code below'
@@ -2033,7 +2037,7 @@ subroutine get_nearest_stns_2(nx,ny,xmn,ymn,deltax,deltay,&
            print *, 'simulation approach.'
            stop
            xg = xmn + deltax * (real(i) - 1.0)
-           yg = ymn + deltay * (real(new_j) - 1.0)
+           yg = ymn + deltay * (real(j) - 1.0)
         endif
 
 !c Loop through all of the stations, calculating the distance
@@ -2048,19 +2052,19 @@ subroutine get_nearest_stns_2(nx,ny,xmn,ymn,deltax,deltay,&
            dist_min = 1.0e30
            do k=1,nstns
               if (dsq(k).le.dist_min) then
-                 k_stn(i,new_j,kk) = k
+                 k_stn(i,j,kk) = k
                  dist_min = dsq(k)
               endif
            enddo
 
 ! c Eliminate the last found minimum from the next search by making
 ! c   its distance a big number.
-           dsq(k_stn(i,new_j,kk)) = 1.0e30
+           dsq(k_stn(i,j,kk)) = 1.0e30
         enddo
-        
+
      enddo
   enddo
-  
+
   return
 end subroutine get_nearest_stns_2
 
@@ -2202,7 +2206,7 @@ subroutine get_good_values1(nstns_orig,xstn_orig,ystn_orig,&
   implicit none
 
 !      include 'snowmodel.inc'
-  
+
   integer nstns        ! number of input values, all good
   integer nstns_orig   ! number of input values
   double precision xstn(nstns_max) ! input stn x coords
@@ -2248,7 +2252,7 @@ subroutine get_good_values2(nstns_orig,xstn_orig,ystn_orig,&
   implicit none
 
 !      include 'snowmodel.inc'
-  
+
   integer nstns        ! number of input values, all good
   integer nstns_orig   ! number of input values
   double precision xstn(nstns_max) ! input stn x coords
@@ -2279,7 +2283,7 @@ subroutine get_good_values2(nstns_orig,xstn_orig,ystn_orig,&
         elev(nstns) = elev_orig(k)
      endif
   enddo
-  
+
   return
 end subroutine get_good_values2
 
@@ -2295,7 +2299,7 @@ subroutine get_obs_data(nstns_orig,Tair_orig,rh_orig,xstn_orig,&
   implicit none
 
 !      include 'snowmodel.inc'
-  
+
   integer iyr,imo,idy      ! year, month, and day of data
   real xhr                 ! decimal hour
   integer idstn            ! station id number
@@ -2351,7 +2355,7 @@ subroutine get_obs_data(nstns_orig,Tair_orig,rh_orig,xstn_orig,&
         print *,'  obs   =', iyr,imo,idy,xhr
         stop
      endif
-     
+
   enddo
 
   return
@@ -2362,9 +2366,9 @@ end subroutine get_obs_data
 
 subroutine get_model_time(iyear_init,imonth_init,iday_init,&
      &  xhour_init,iter,dt,iyear,imonth,iday,xhour,J_day)
-  
+
   implicit none
-  
+
   integer iyear,imonth,iday  ! model year, month, and day
   real xhour                 ! model decimal hour
   real dt                    ! model time step, in seconds
@@ -2582,7 +2586,7 @@ end subroutine get_lapse_rates
 subroutine get_dn(nx,ny,deltax,deltay,nstns,dn,iobsint)
 
   implicit none
-  
+
   integer nx,ny,nstns
   real deltax,deltay,dn
   real dn_max           ! the max obs spacing, dn_r
@@ -2629,7 +2633,7 @@ subroutine barnes_oi(nx,ny,deltax,deltay,xmn,ymn,&
   use caf_module, only : max_l_ny, l_ny, global_map
   use snowmodel_inc
   implicit none
-      
+
 !      include 'snowmodel.inc'
 
   real,parameter :: gamma = 0.2
@@ -2703,7 +2707,7 @@ subroutine barnes_oi(nx,ny,deltax,deltay,xmn,ymn,&
      ya = ystn(nn)
      wtot1 = 0.0
      ftot1 = 0.0
-     
+
      !     do 111 mm=1,nstns
      do mm = 1, nstns
 
@@ -2721,7 +2725,7 @@ subroutine barnes_oi(nx,ny,deltax,deltay,xmn,ymn,&
            w1 = anum_1/dsq
 
         endif
-        
+
         wtot1 = wtot1 + w1
         ftot1 = ftot1 + w1 * var(mm)
 
@@ -2729,7 +2733,7 @@ subroutine barnes_oi(nx,ny,deltax,deltay,xmn,ymn,&
      end do
 
      if (wtot1.eq.0.0) print *,'stn wt totals zero'
-        
+
      dvar(nn) = var(nn) - ftot1/wtot1
 
 !222     continue        ! end prediction loop on sites nn
@@ -2737,7 +2741,7 @@ subroutine barnes_oi(nx,ny,deltax,deltay,xmn,ymn,&
 ! c Grid-prediction loop.  Generate the estimate using first set of
 ! c   weights, and correct using error estimates, dvar, and second
 ! c   set of weights.
-        
+
      !do 666 j=1,ny
   do j=1,l_ny
      new_j = global_map(j)
@@ -2755,23 +2759,23 @@ subroutine barnes_oi(nx,ny,deltax,deltay,xmn,ymn,&
         ftot2 = 0.0
         wtot2 = 0.0
         nflag = 0
-              
+
            !   do 333 nn=1,nstns
         do nn=1,nstns
            xa = xstn(nn)
            ya = ystn(nn)
            dsq = (xg - xa)**2 + (yg - ya)**2
-              
+
            if (dsq.le.rmax_2) then
-              
+
               w1 = exp((- dsq)/xkappa_1)
               w2 = exp((- dsq)/xkappa_2)
-              
+
            elseif (dsq.le.rmax_1) then
-              
+
               w1 = exp((- dsq)/xkappa_1)
               w2 = anum_2/dsq
-              
+
            else
 
 !c Assume a 1/r**2 weight.
@@ -2779,18 +2783,18 @@ subroutine barnes_oi(nx,ny,deltax,deltay,xmn,ymn,&
               nflag = nflag + 1
 !c With anum_2/dsq.
               w2 = gamma * w1
-                 
+
            endif
-                 
+
            wtot1 = wtot1 + w1
            wtot2 = wtot2 + w2
            ftot1 = ftot1 + w1 * var(nn)
            ftot2 = ftot2 + w2 * dvar(nn)
-              
+
 !333              continue    ! end loop on data sites nn
         end do
         if (wtot1.eq.0.0 .or. wtot2.eq.0.0) print *,'wts total zero'
-           
+
         if (ifill.eq.1) then
            grid(i,j) = ftot1/wtot1 + ftot2/wtot2
         else
@@ -2804,7 +2808,7 @@ subroutine barnes_oi(nx,ny,deltax,deltay,xmn,ymn,&
   end do
 !555              continue         ! end loop on cols i
 !666              continue         ! end loop on rows j
-  
+
   return
 end subroutine barnes_oi
 
@@ -2839,7 +2843,7 @@ subroutine barnes_oi_ij(nx,ny,deltax,deltay,xmn,ymn,&
   double precision xmn !center x coords of lower left grid cell
   double precision ymn !center y coords of lower left grid cell
 
-  double precision xg_line(nx,ny),yg_line(nx,ny)
+  double precision xg_line(nx,max_l_ny),yg_line(nx,max_l_ny)
   real snowmodel_line_flag
 
   integer nstns        ! number of input values, all good
@@ -2912,14 +2916,14 @@ subroutine barnes_oi_ij(nx,ny,deltax,deltay,xmn,ymn,&
         dsq = (xb - xa)**2 + (yb - ya)**2
 
         if (dsq.le.rmax_1) then
-           
+
            w1 = exp((- dsq)/xkappa_1)
-           
+
         else
 
 !c Assume a 1/r**2 weight.
            w1 = anum_1/dsq
-           
+
         endif
 
         wtot1 = wtot1 + w1
@@ -2946,13 +2950,13 @@ subroutine barnes_oi_ij(nx,ny,deltax,deltay,xmn,ymn,&
   ! c ycoords of grid nodes at index i,j
   new_j = global_map(j)
   if (snowmodel_line_flag.eq.1.0) then
-     xg = xg_line(i,new_j)
-     yg = yg_line(i,new_j)
+     xg = xg_line(i,j)
+     yg = yg_line(i,j)
   else
      xg = xmn + deltax * (real(i) - 1.0)
      yg = ymn + deltay * (real(new_j) - 1.0)
   endif
-  
+
 !c Scan each input data point.
   ftot1 = 0.0
   wtot1 = 0.0
@@ -2962,21 +2966,21 @@ subroutine barnes_oi_ij(nx,ny,deltax,deltay,xmn,ymn,&
 
   do nn=1,nstns
 !  do 333 nn=1,nstns
-           
+
      xa = xstn(nn)
      ya = ystn(nn)
      dsq = (xg - xa)**2 + (yg - ya)**2
-     
+
      if (dsq.le.rmax_2) then
-        
+
         w1 = exp((- dsq)/xkappa_1)
         w2 = exp((- dsq)/xkappa_2)
-        
+
      elseif (dsq.le.rmax_1) then
-        
+
         w1 = exp((- dsq)/xkappa_1)
         w2 = anum_2/dsq
-        
+
      else
 
 !c Assume a 1/r**2 weight.
@@ -3023,7 +3027,7 @@ subroutine single_stn(nx,ny,nstns,var,grid)
   implicit none
 
 !      include 'snowmodel.inc'
-  
+
   integer nstns    ! number of input values, all good
   integer nx       ! number of x output values
   integer ny       ! number of y output values
@@ -3031,7 +3035,7 @@ subroutine single_stn(nx,ny,nstns,var,grid)
   real var(nstns_max)      ! input values
   real grid(nx,max_l_ny) ! output values
   integer i,j              ! col, row counters
-  
+
 !c Assign the station value to every grid cell.
   do j=1,l_ny
      do i=1,nx
@@ -3052,7 +3056,7 @@ subroutine pressure(nx,ny,topo,sfc_pressure)
   implicit none
 
 !      include 'snowmodel.inc'
-  
+
   integer i,j,nx,ny
 
   real topo(nx,ny),sfc_pressure(nx,max_l_ny)
@@ -3093,7 +3097,7 @@ subroutine shortwave_data(nx,ny,deltax,deltay,xmn,ymn,&
   implicit none
 
 !      include 'snowmodel.inc'
-  
+
   real deltax,deltay,xhour,xhr,elev(nstns_max),undef
   real var_grid(nx,max_l_ny),delta_var_grid(nx,max_l_ny)
   real var_obs(nstns_max),elev_orig(nstns_max),var_orig(nstns_max)
@@ -3139,7 +3143,7 @@ subroutine shortwave_data(nx,ny,deltax,deltay,xmn,ymn,&
      call DATA_ASSIM(nx,ny,deltax,deltay,xmn,ymn,xstn,ystn,&
           &    nstns,var_obs,delta_var_grid,var_grid)
   endif
-     
+
 !c For incoming shortwave, incoming longwave, and surface pressure,
 !c   make sure no negetive numbers have been produced.
   do j=1,l_ny
@@ -3153,7 +3157,7 @@ subroutine shortwave_data(nx,ny,deltax,deltay,xmn,ymn,&
        &  form='unformatted',access='direct',recl=4*nx*ny)
   write (74,rec=iter) ((delta_var_grid(i,j),i=1,nx),j=1,ny)
   close(74)
-  
+
   return
 end subroutine shortwave_data
 
@@ -3175,7 +3179,7 @@ subroutine longwave_data(nx,ny,deltax,deltay,xmn,ymn,&
   implicit none
 
 !      include 'snowmodel.inc'
-  
+
   real deltax,deltay,xhour,xhr,elev(nstns_max),undef
   real var_grid(nx,ny),delta_var_grid(nx,ny)
   real var_obs(nstns_max),elev_orig(nstns_max),var_orig(nstns_max)
@@ -3257,7 +3261,7 @@ subroutine sfc_pressure_data(nx,ny,deltax,deltay,xmn,ymn,&
   implicit none
 
 !      include 'snowmodel.inc'
-  
+
   real deltax,deltay,xhour,xhr,elev(nstns_max),undef
   real var_grid(nx,max_l_ny),delta_var_grid(nx,max_l_ny)
   real var_obs(nstns_max),elev_orig(nstns_max),var_orig(nstns_max)
@@ -3316,7 +3320,7 @@ subroutine sfc_pressure_data(nx,ny,deltax,deltay,xmn,ymn,&
 ! c    &  form='unformatted',access='direct',recl=4*nx*ny)
 ! c     write (76,rec=iter) ((delta_var_grid(i,j),i=1,nx),j=1,ny)
 ! c     close(76)
-  
+
   return
 end subroutine sfc_pressure_data
 
@@ -3330,7 +3334,7 @@ subroutine DATA_ASSIM(nx,ny,deltax,deltay,xmn,ymn,xstn,ystn,&
   implicit none
 
   !    include 'snowmodel.inc'
-  
+
   real deltax,deltay,undef,dn
   real var_grid(nx,ny),delta_var_grid(nx,ny)
   real var_model(nstns_max),var_obs(nstns_max),&
@@ -3358,7 +3362,7 @@ subroutine DATA_ASSIM(nx,ny,deltax,deltay,xmn,ymn,xstn,ystn,&
   do k=1,nstns
      delta_var(k) = var_obs(k) - var_model(k)
   enddo
-  
+
 ! c Now that I have the differences calculated at each observation
 ! c   point, interpolate them over the simulation domain.  Use the
 ! c   barnes oi scheme to create the distribution. If there is
@@ -3384,7 +3388,7 @@ subroutine DATA_ASSIM(nx,ny,deltax,deltay,xmn,ymn,xstn,ystn,&
         var_grid(i,j) = var_grid(i,j) + delta_var_grid(i,j)
      enddo
   enddo
-  
+
   return
 end subroutine DATA_ASSIM
 
@@ -3397,7 +3401,7 @@ subroutine get_lai(J_day,forest_LAI)
 
   integer J_day,n
   integer, parameter :: nftypes = 5
-  
+
   real vlai_summer(nftypes),vlai_winter(nftypes),&
        &  forest_LAI(nftypes)
 
@@ -3458,7 +3462,7 @@ subroutine read_wind_file(nx,ny,iter,uwind_grid,vwind_grid,&
   implicit none
 
 !      include 'snowmodel.inc'
-  
+
   integer nx
   integer ny
 
@@ -3540,14 +3544,14 @@ subroutine read_wind_file(nx,ny,iter,uwind_grid,vwind_grid,&
 ! c Some compilers do not allow both u and v to be 0.0 in
 ! c   the atan2 computation.
   if (abs(u_sum).lt.1e-10) u_sum = 1e-10
-  
+
   winddir_flag = rad2deg * atan2(u_sum,v_sum)
   if (winddir_flag.ge.180.0) then
      winddir_flag = winddir_flag - 180.0
   else
      winddir_flag = winddir_flag + 180.0
   endif
-  
+
   return
 end subroutine read_wind_file
 
@@ -3560,12 +3564,12 @@ subroutine get_daily_irec (iter,dt,irec_day)
 
   integer iter,irec_day
   real dt,secs_in_day,secs_in_sim
-  
+
   secs_in_day = 60.0 * 60.0 * 24.0
-  
+
   secs_in_sim = dt * real(iter - 1)
   irec_day = int(secs_in_sim / secs_in_day) + 1
-  
+
   return
 end subroutine get_daily_irec
 
@@ -3573,4 +3577,3 @@ end subroutine get_daily_irec
 ! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-

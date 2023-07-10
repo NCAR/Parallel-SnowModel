@@ -23,6 +23,7 @@ module snowmodel_vars
   real windspd_min,tabler_dir,slope_adjust
 
   real, allocatable :: topo_land(:,:)
+  real, allocatable :: l_topo_land(:,:)[:]
 !  real, allocatable :: tabler_nn(:,:)
   real, allocatable :: l_tabler_nn(:,:)[:]
   real, allocatable :: l_tabler_nn_orig(:,:)[:]
@@ -62,13 +63,13 @@ module snowmodel_vars
   real, allocatable ::  tair_grid(:,:),sprec(:,:)
   real, allocatable :: l_tair_grid(:,:)[:]
   real, allocatable :: l_sprec(:,:)[:]
-  real, allocatable ::  rh_grid(:,:), curvature(:,:)
+  real, allocatable ::  rh_grid(:,:)
   real, allocatable :: l_rh_grid(:,:)[:],l_curvature(:,:)[:]
 
   real, allocatable :: l_slope_az(:,:)[:],l_terrain_slope(:,:)[:]
 
-  real, allocatable ::  slope_az(:,:)
-  real, allocatable ::  terrain_slope(:,:)
+!  real, allocatable ::  slope_az(:,:)
+!  real, allocatable ::  terrain_slope(:,:)
 
   ! integer,allocatable :: index_ue(:,:),index_uw(:,:)
   ! integer,allocatable :: index_vn(:,:),index_vs(:,:)
@@ -80,12 +81,12 @@ module snowmodel_vars
   real, allocatable :: l_snow_d_init(:,:)[:]
   real, allocatable ::  snow_d_init(:,:)
   real, allocatable ::  Utau(:,:)
-  real, allocatable ::  Utau_t(:,:)
+!  real, allocatable ::  Utau_t(:,:)
   real, allocatable ::  l_Utau(:,:)[:]
   real, allocatable ::  l_Utau_t(:,:)[:]
   real, allocatable ::  z_0(:,:)
   real, allocatable ::  h_star(:,:)
-  real, allocatable ::  conc_salt(:,:)
+!  real, allocatable ::  conc_salt(:,:)
   real, allocatable ::  l_conc_salt(:,:)
 
 !  real, allocatable ::  Qsalt_max(:,:)
@@ -95,7 +96,7 @@ module snowmodel_vars
   real, allocatable ::  Qsalt(:,:)
   real, allocatable ::  l_Qsalt(:,:)[:]
 !  real, allocatable ::  Qsalt_u(:,:)
-  real, allocatable ::  Qsalt_v(:,:)
+!  real, allocatable ::  Qsalt_v(:,:)
   real, allocatable ::  l_Qsalt_v(:,:)[:]
   real, allocatable ::  l_Qsalt_u(:,:)[:]
 !  real, allocatable ::  dh_salt(:,:)
@@ -106,7 +107,7 @@ module snowmodel_vars
   real, allocatable ::  Qsusp(:,:)
   real, allocatable ::  l_Qsusp(:,:)[:]
 !  real, allocatable ::  Qsusp_u(:,:)
-  real, allocatable ::  Qsusp_v(:,:)
+!  real, allocatable ::  Qsusp_v(:,:)
   real, allocatable ::  l_Qsusp_u(:,:)[:],l_Qsusp_v(:,:)[:]
 !  real, allocatable ::  dh_susp(:,:)
   real, allocatable ::  l_dh_susp(:,:)[:]
@@ -135,7 +136,7 @@ module snowmodel_vars
   real, allocatable ::  l_sum_trans(:,:)[:]
   real, allocatable ::  l_soft_snow_d(:,:)[:]
   real, allocatable ::  soft_snow_d(:,:)
-  real, allocatable ::  ro_soft_snow(:,:)
+!  real, allocatable ::  ro_soft_snow(:,:)
   real, allocatable ::  ro_soft_snow_old(:,:)
   real, allocatable ::  l_ro_soft_snow(:,:)[:]
   real, allocatable ::  l_ro_soft_snow_old(:,:)[:]
@@ -168,6 +169,7 @@ module snowmodel_vars
   double precision ymn  ! center y coords of lower left grid cell
   !double precision xg_line(nx_max,ny_max),yg_line(nx_max,ny_max)
   double precision, allocatable :: xg_line(:,:),yg_line(:,:)
+  double precision, allocatable :: l_xg_line(:,:)[:],l_yg_line(:,:)[:]
 
   real dn                  ! average observation spacing
 
@@ -177,8 +179,10 @@ module snowmodel_vars
   real, allocatable ::  Qli_grid(:,:)    ! output
   real, allocatable :: l_prec_grid(:,:)[:]
   real, allocatable ::  prec_grid(:,:)   ! output
-  real, allocatable ::  xlat_grid(:,:)   ! lat (dec deg) of cell centers
+!  real, allocatable ::  xlat_grid(:,:)   ! lat (dec deg) of cell centers
+  real, allocatable ::  l_xlat_grid(:,:)[:]
   real, allocatable ::  xlon_grid(:,:)   ! lon (dec deg) of cell centers
+  real, allocatable ::  l_xlon_grid(:,:)[:]
 
   integer iyear_init     ! model start year
   integer imonth_init    ! model start month
@@ -207,6 +211,7 @@ module snowmodel_vars
   integer iyear,imonth,iday
   !integer k_stn(nx_max,ny_max,9)
   integer, allocatable :: k_stn(:,:,:)!Last dim is 9
+  integer, allocatable :: l_k_stn(:,:,:)[:]!Last dim is 9
 
   real, allocatable ::  l_cf_precip(:,:)[:]
   real, allocatable ::  cf_precip(:,:)
@@ -279,8 +284,7 @@ module snowmodel_vars
        &  swemelt(:,:),&
        &  sum_d_canopy_int(:,:),sum_sfcsublim(:,:),&
        &  sum_swemelt(:,:),swesublim(:,:),&
-       &  swe_depth_old(:,:),canopy_int_old(:,:),&
-       &  windspd_2m_grid(:,:)
+       &  swe_depth_old(:,:),canopy_int_old(:,:)
 
   real sfc_sublim_flag
 
@@ -288,13 +292,14 @@ module snowmodel_vars
   integer, allocatable :: l_KK(:,:)[:]
   integer, allocatable :: KK(:,:)
   integer, allocatable :: melt_flag(:,:,:)!nz_max
+  integer, allocatable :: l_melt_flag(:,:,:)[:]!nz_max
 
 
   real ro_snowmax,tsls_threshold,dz_snow_min
   real, allocatable :: l_tslsnowfall(:,:)[:]
-  real, allocatable ::  tslsnowfall(:,:)
+!  real, allocatable ::  tslsnowfall(:,:)
   real, allocatable :: l_change_layer(:,:)[:]
-  real, allocatable ::  change_layer(:,:)
+!  real, allocatable ::  change_layer(:,:)
   real, allocatable ::  snod_layer(:,:,:)
   real, allocatable ::  l_snod_layer(:,:,:)[:]
   real, allocatable ::  swed_layer(:,:,:)
@@ -330,7 +335,7 @@ module snowmodel_vars
 
 !c Print output variables.
   real print_micromet,print_enbal,print_snowpack,print_snowtran,&
-       &  print_multilayer
+       &  print_multilayer,print_parallel
   real print_user,print_inc
   double precision nrecs_max
 
@@ -346,10 +351,14 @@ module snowmodel_vars
 !c End print output variables.
 contains
 
-  subroutine allocate_arrays(nx,ny,me)
+  subroutine allocate_arrays(nx,ny,me,lat_solar_flag,seaice_run,&
+                             & UTC_flag,snowmodel_line_flag,&
+                             & print_parallel,print_multilayer)
     implicit none
 
-    integer, intent(in) :: nx,ny,me
+    integer, intent(in) :: nx,ny,me,lat_solar_flag
+    real, intent(in) :: seaice_run,UTC_flag,snowmodel_line_flag
+    real, intent(in) :: print_parallel,print_multilayer
     integer, save :: first = 1
 
     real,dimension(nx,ny) :: zero_real
@@ -369,17 +378,17 @@ contains
 !    allocate( tabler_sw(nx,ny),source=zero_real)
 !    allocate( tabler_nw(nx,ny),source=zero_real)
     allocate( topo(nx,ny),source=zero_real)
-    allocate( vegtype(nx,ny),source=zero_real)
+!    allocate( vegtype(nx,ny),source=zero_real)
 !    allocate( uwind_grid(nx,ny),source=zero_real)
     allocate( vwind_grid(nx,ny),source=zero_real)
 !    allocate( windspd_grid(nx,ny),winddir_grid(nx,ny),source=zero_real)
-    allocate( tair_grid(nx,ny),source=zero_real)
+!    allocate( tair_grid(nx,ny),source=zero_real)
 !    allocate( sprec(nx,ny),source=zero_real)
 !    allocate( rh_grid(nx,ny),source=zero_real)
-    allocate(curvature(nx,ny),source=zero_real)
+!    allocate(curvature(nx,ny),source=zero_real)
 
-    allocate( slope_az(nx,ny),source=zero_real)
-    allocate( terrain_slope(nx,ny),source=zero_real)
+!    allocate( slope_az(nx,ny),source=zero_real)
+!    allocate( terrain_slope(nx,ny),source=zero_real)
 
     ! The following 2 variables have nx and ny swapped.
     ! Nx (cols) is also doubled
@@ -387,54 +396,54 @@ contains
     ! The following 2 variables have ny (cols) doubled
     !integer,allocatable :: index_vn(:,:),index_vs(:,:)
 
-    allocate( snow_d(nx,ny),source=zero_real)
+!    allocate( snow_d(nx,ny),source=zero_real)
 
-    allocate( snow_d_init(nx,ny),source=zero_real)
+!    allocate( snow_d_init(nx,ny),source=zero_real)
     allocate( Utau(nx,ny),source=zero_real)
-    allocate( Utau_t(nx,ny),source=zero_real)
-    !allocate( z_0(nx,ny),source=zero_real)
-    !allocate( h_star(nx,ny),source=zero_real)
-    allocate( conc_salt(nx,ny),source=zero_real)
+!    allocate( Utau_t(nx,ny),source=zero_real)
+!    allocate( z_0(nx,ny),source=zero_real)
+!    allocate( h_star(nx,ny),source=zero_real)
+!    allocate( conc_salt(nx,ny),source=zero_real)
 
 !    allocate( Qsalt_max(nx,ny),source=zero_real)
 !    allocate( Qsalt_maxu(nx,ny),source=zero_real)
 !    allocate( Qsalt_maxv(nx,ny),source=zero_real)
 !    allocate( Qsalt(nx,ny),source=zero_real)
 !    allocate( Qsalt_u(nx,ny),source=zero_real)
-    allocate( Qsalt_v(nx,ny),source=zero_real)
+!    allocate( Qsalt_v(nx,ny),source=zero_real)
 !    allocate( dh_salt(nx,ny),source=zero_real)
 !    allocate( dh_salt_u(nx,ny),source=zero_real)
 !    allocate( dh_salt_v(nx,ny),source=zero_real)
 
 !    allocate( Qsusp(nx,ny),source=zero_real)
 !    allocate( Qsusp_u(nx,ny),source=zero_real)
-    allocate( Qsusp_v(nx,ny),source=zero_real)
+!    allocate( Qsusp_v(nx,ny),source=zero_real)
 !    allocate( dh_susp(nx,ny),source=zero_real)
 !    allocate( dh_susp_u(nx,ny),dh_susp_v(nx,ny),source=zero_real)
 
 !    allocate( Qsubl(nx,ny),source=zero_real)
 !    allocate( Qsubl_depth(nx,ny),source=zero_real)
 
-    allocate( sum_sprec(nx,ny),source=zero_real)
+!    allocate( sum_sprec(nx,ny),source=zero_real)
 
 !    allocate( wbal_qsubl(nx,ny),source=zero_real)
 !    allocate( wbal_salt(nx,ny),source=zero_real)
 !    allocate( wbal_susp(nx,ny),source=zero_real)
 !    allocate( wbal_subgrid(nx,ny),source=zero_real)
-    allocate( sum_qsubl(nx,ny),source=zero_real)
-    allocate( sum_trans(nx,ny),source=zero_real)
+!    allocate( sum_qsubl(nx,ny),source=zero_real)
+!    allocate( sum_trans(nx,ny),source=zero_real)
 
-    allocate( soft_snow_d(nx,ny),source=zero_real)
-    allocate( ro_soft_snow(nx,ny),source=zero_real)
-    allocate( ro_soft_snow_old(nx,ny),source=zero_real)
-    allocate( curve_wt_lg(nx,ny),source=zero_real)
+!    allocate( soft_snow_d(nx,ny),source=zero_real)
+!    allocate( ro_soft_snow(nx,ny),source=zero_real)
+!    allocate( ro_soft_snow_old(nx,ny),source=zero_real)
+!    allocate( curve_wt_lg(nx,ny),source=zero_real)
 
     !allocate( vegsnowdepth(nvegtypes))!vegsnowdepth(nvegtypes)
-    allocate( veg_z0(nx,ny),source=zero_real)
-    allocate( vegsnowd_xy(nx,ny),source=zero_real)
+!    allocate( veg_z0(nx,ny),source=zero_real)
+!    allocate( vegsnowd_xy(nx,ny),source=zero_real)
 
 !   ADDED LINE TO ALLOCATE GLOBAL VARIABLE ONLY TO MAIN PROCESSOR
-    if (me == 0) then
+    if (me == 0 .and. print_parallel.eq.0.0) then
       allocate( Qsalt(nx,ny),source=zero_real)
       allocate( Qsusp(nx,ny),source=zero_real)
       allocate( rh_grid(nx,ny),source=zero_real)
@@ -454,65 +463,103 @@ contains
       allocate( swesublim(nx,ny),source=zero_real)
       allocate( canopy_unload(nx,ny),source=zero_real)
       allocate( Qsubl_depth(nx,ny),source=zero_real)
+      allocate( Qsi_grid(nx,ny),source=zero_real)    ! output
+      allocate( Qli_grid(nx,ny),source=zero_real)    ! output
+      allocate( cloud_frac_grid(nx,ny),source=zero_real)
+      allocate(Tsfc(nx,ny),source=zero_real)
+      allocate(Qle(nx,ny),source=zero_real)
+      allocate(Qh(nx,ny),source=zero_real)
+      allocate(Qe(nx,ny),source=zero_real)
+      allocate(Qc(nx,ny),source=zero_real)
+      allocate(Qm(nx,ny),source=zero_real)
+      allocate(e_balance(nx,ny),source=zero_real)
+      allocate(Qf(nx,ny),source=zero_real)
+      allocate(sfc_pressure(nx,ny),source=zero_real)
+      allocate(albedo(nx,ny),source=zero_real)
+      allocate(rain(nx,ny),source=zero_real)
+      allocate(xro_snow(nx,ny),source=zero_real)
+      allocate(swemelt(nx,ny),source=zero_real)
+      allocate( sum_sprec(nx,ny),source=zero_real)
+      allocate( sum_qsubl(nx,ny),source=zero_real)
+      allocate( sum_trans(nx,ny),source=zero_real)
+      allocate( sum_prec(nx,ny),source=zero_real)
+      allocate( sum_runoff(nx,ny),source=zero_real)
+      allocate( sum_Qcs(nx,ny),source=zero_real)
+      allocate( sum_unload(nx,ny),source=zero_real)
+      allocate( sum_glacmelt(nx,ny),source=zero_real)
+      allocate( sum_d_canopy_int(nx,ny),source=zero_real)
+      allocate( sum_sfcsublim(nx,ny),source=zero_real)
+      allocate( sum_swemelt(nx,ny),source=zero_real)
+      allocate( ro_snow_grid(nx,ny),source=zero_real)
+      allocate( swe_depth(nx,ny),source=zero_real)
+      allocate( soft_snow_d(nx,ny),source=zero_real)
+      allocate( ro_soft_snow_old(nx,ny),source=zero_real)
+      allocate( snow_d_init(nx,ny),source=zero_real)
+      allocate( snow_depth(nx,ny),source=zero_real)
+      allocate( canopy_int(nx,ny),source=zero_real)
+      allocate( swe_depth_old(nx,ny),source=zero_real)
+      allocate( canopy_int_old(nx,ny),source=zero_real)
+      allocate( tair_grid(nx,ny),source=zero_real)
+      allocate( vegtype(nx,ny),source=zero_real)
+      allocate(KK(nx,ny))
+      KK = 0
     endif
-
-    allocate (xg_line(nx,ny),yg_line(nx,ny))
-    xg_line = 0.0
-    yg_line = 0.0
-    allocate( Qsi_grid(nx,ny),source=zero_real)    ! output
-    allocate( Qli_grid(nx,ny),source=zero_real)    ! output
+    if (me==0) then
+      !INPUT LOCAL VARIABLES FROM PREPROCESS_CODE
+!      allocate( vegsnowd_xy(nx,ny),source=zero_real)
+!      allocate( veg_z0(nx,ny),source=zero_real)
+!      allocate( curve_wt_lg(nx,ny),source=zero_real)
+!      allocate( cf_precip(nx,ny),source=zero_real)
+      allocate( snow_d(nx,ny),source=zero_real)
+!      allocate( xlat_grid(nx,ny),source=zero_real)
+!      allocate( xlon_grid(nx,ny),source=zero_real)
+    endif
+    if ((snowmodel_line_flag.eq.1.0).and.(me==0)) then
+      allocate (xg_line(nx,ny))
+      xg_line = 0.0
+      allocate (yg_line(nx,ny))
+      yg_line = 0.0
+    endif
+!    allocate( Qsi_grid(nx,ny),source=zero_real)    ! output
+!    allocate( Qli_grid(nx,ny),source=zero_real)    ! output
 
 !    allocate( prec_grid(nx,ny),source=zero_real)   ! output
-    allocate( xlat_grid(nx,ny),source=zero_real)   ! lat (dec deg) of cell centers
-    allocate( xlon_grid(nx,ny),source=zero_real)   ! lon (dec deg) of cell centers
 
-    allocate( cf_precip(nx,ny),source=zero_real)
 
-    allocate(k_stn(nx,ny,9))!Last dim is 9
-    k_stn = 0
+!    allocate( cf_precip(nx,ny),source=zero_real)
 
-    allocate( cloud_frac_grid(nx,ny),source=zero_real)
+!    allocate(k_stn(nx,ny,9))!Last dim is 9
+!    k_stn = 0
 
-    allocate(Tsfc(nx,ny),Qle(nx,ny),&
-         &  Qh(nx,ny),Qe(nx,ny),Qc(nx,ny),&
-         &  Qm(nx,ny),e_balance(nx,ny),Qf(nx,ny),&
-         &  swe_depth(nx,ny),sfc_pressure(nx,ny),&
-         &  albedo(nx,ny),source=zero_real)
+!    allocate( cloud_frac_grid(nx,ny),source=zero_real)
 
-    allocate(rain(nx,ny),&
-         &  sum_prec(nx,ny),sum_runoff(nx,ny),&
-         &  xro_snow(nx,ny),ro_snow_grid(nx,ny),&
-         &  sum_Qcs(nx,ny),canopy_int(nx,ny),&
-         &  snow_depth(nx,ny),&
-         &  sum_unload(nx,ny),sum_glacmelt(nx,ny),&
-         &  swemelt(nx,ny),&
-         &  sum_d_canopy_int(nx,ny),sum_sfcsublim(nx,ny),&
-         &  sum_swemelt(nx,ny),&
-         &  swe_depth_old(nx,ny),canopy_int_old(nx,ny),&
-         &  windspd_2m_grid(nx,ny),source=zero_real)
+!    allocate(swe_depth(nx,ny),source=zero_real)
 
-    allocate(KK(nx,ny))
-    KK = 0
-    allocate(melt_flag(nx,ny,nz_max))!nz_max
-    melt_flag = 0
 
-    allocate( tslsnowfall(nx,ny),source=zero_real)
+!    allocate(KK(nx,ny))
+!    KK = 0
+!    allocate(melt_flag(nx,ny,nz_max))!nz_max
+!    melt_flag = 0
 
-    allocate( change_layer(nx,ny),source=zero_real)
-    allocate( snod_layer(nx,ny,nz_max))
-    snod_layer = 0.0
-    allocate( swed_layer(nx,ny,nz_max))
-    swed_layer = 0.0
-    allocate( ro_layer(nx,ny,nz_max))
-    ro_layer = 0.0
-    allocate( T_old(nx,ny,nz_max))
-    T_old = 0.0
-    allocate( gamma(nx,ny,nz_max))
-    gamma = 0.0
-    allocate( diam_layer(nx,ny,nz_max))
-    diam_layer = 0.0
-    allocate( flux_layer(nx,ny,nz_max))
-    flux_layer = 0.0
+!    allocate( tslsnowfall(nx,ny),source=zero_real)
+
+!    allocate( change_layer(nx,ny),source=zero_real)
+    if (me==0 .and. print_multilayer.eq.1.0) then
+      allocate( snod_layer(nx,ny,nz_max))
+      snod_layer = 0.0
+      allocate( swed_layer(nx,ny,nz_max))
+      swed_layer = 0.0
+      allocate( ro_layer(nx,ny,nz_max))
+      ro_layer = 0.0
+      allocate( T_old(nx,ny,nz_max))
+      T_old = 0.0
+      allocate( gamma(nx,ny,nz_max))
+      gamma = 0.0
+      allocate( diam_layer(nx,ny,nz_max))
+      diam_layer = 0.0
+      allocate( flux_layer(nx,ny,nz_max))
+      flux_layer = 0.0
+    endif
     allocate(seaice_conc(nx,ny,nz_max))
     seaice_conc = 0.0
 

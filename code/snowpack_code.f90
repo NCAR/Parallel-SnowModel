@@ -29,7 +29,7 @@ SUBROUTINE SNOWPACK_CODE(nx,ny,Tair_grid,rh_grid,ro_nsnow,&
 
   integer max_layers,multilayer_snowpack,k,n_tsteps_in_day,irec
   integer KK(nx,max_l_ny)
-  integer melt_flag(nx,ny,nz_max)
+  integer melt_flag(nx,max_l_ny,nz_max)
 
   real ro_snowmax,tsls_threshold,dz_snow_min,Cp_snow
   real tslsnowfall(nx,max_l_ny)

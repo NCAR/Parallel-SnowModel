@@ -111,7 +111,6 @@
 !!! (recommended default value: igrads_metfile = 0)
       igrads_metfile = 0
 
-
 ! Define the meteorologial input file name.  Note that this input
 !   file has very specific input format requirements (see the
 !   MicroMet preprocessor).  The required met variables are:
@@ -1070,6 +1069,12 @@
      print_inc = 8.0
 !      print_inc = 1.0
 
+! Define if output will be written in parallel. Print_parallel = 0.0
+! means output will be written by global variable on main process.
+! Print_parallel = 1.0 means output will be written by the local variable.
+!!! (recommended default value: print_parallel = 0.0)
+!       print_parallel = 0.0
+      print_parallel = 1.0
 
 ! Define the directory (the path) where the data will be stored.
 !   This requires a path for "without" assimilation, and a path
