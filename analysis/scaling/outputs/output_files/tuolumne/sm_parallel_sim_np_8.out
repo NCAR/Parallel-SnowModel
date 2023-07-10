@@ -1,0 +1,279 @@
+Restoring modules from user's caf, for system: "ch"
+8
+np_8
+output_path_wo_assim = outputs/wo_assim/
+outputs/wo_assim/np_8/binary/
+rm: cannot remove 'outputs/wo_assim/np_8/binary/*.gdat': No such file or directory
+outputs/wo_assim/np_8/sim_params
+
+ snowmodel.par                                                                                       
+ nx =         311
+ ny =         185
+ deltax =   100.000000    
+ deltay =   100.000000    
+ xmn =   264550.00000000000     
+ ymn =   4197450.0000000000     
+ dt =   10800.0000    
+ iyear_init =        2018
+ imonth_init =           3
+ iday_init =          23
+ xhour_init =   3.00000000    
+ max_iter =          16
+ isingle_stn_flag =           0
+ igrads_metfile =           0
+ netcdf_fpath = /glade/scratch/rossamower/snow/snowmodel/data/wrf_30yr/
+ met_input_fname = met/nldas2/7_mk_mm/mm_3hrly_scaling.dat
+ undef =  -9999.00000    
+ ascii_topoveg =   0.00000000    
+ topoveg_fname = ./topo_vege/NoAm_30m/topo_vege.gdat
+ topo_ascii_fname = xxxxxxx
+ veg_ascii_fname = xxxxxxx
+ veg_shd_25 =  0.100000001    
+ veg_shd_26 =  0.100000001    
+ veg_shd_27 =  0.100000001    
+ veg_shd_28 =  0.100000001    
+ veg_shd_29 =  0.100000001    
+ veg_shd_30 =  0.100000001    
+ const_veg_flag =   0.00000000    
+ iveg_ht_flag =           0
+ xlat =   37.9799995    
+ lat_solar_flag =          -1
+ UTC_flag =  -1.00000000    
+ run_micromet =   1.00000000    
+ run_enbal =   1.00000000    
+ run_snowpack =   1.00000000    
+ run_snowtran =   1.00000000    
+ irun_data_assim =           0
+ ihrestart_flag =          -2
+ i_dataassim_loop =           1
+ ihrestart_inc =           0
+ i_tair_flag =           1
+ i_rh_flag =           1
+ i_wind_flag =           1
+ i_solar_flag =           1
+ i_longwave_flag =           1
+ i_prec_flag =           1
+ ifill =           1
+ iobsint =           0
+ dn =   1.00000000    
+ barnes_lg_domain =   1.00000000    
+ n_stns_used =           4
+ snowmodel_line_flag =   0.00000000    
+ check_met_data =   0.00000000    
+ curve_len_scale =   200.000000    
+ slopewt =  0.250000000    
+ curvewt =  0.750000000    
+ curve_lg_scale_flag =   0.00000000    
+ windspd_min =   1.00000000    
+ lapse_rate_user_flag =           0
+ iprecip_lapse_rate_user_flag =           0
+ iprecip_scheme =           1
+ snowfall_frac =   3.00000000    
+ wind_lapse_rate =   0.00000000    
+ calc_subcanopy_met =   1.00000000    
+ gap_frac =  0.400000006    
+ cloud_frac_factor =  0.899999976    
+ use_shortwave_obs =   0.00000000    
+ use_longwave_obs =   0.00000000    
+ use_sfc_pressure_obs =   0.00000000    
+ cf_precip_flag =   0.00000000    
+ Utau_t_flag =   0.00000000    
+ Utau_t_const =  0.250000000    
+ subgrid_flag =   0.00000000    
+ tabler_dir =   270.000000    
+ slope_adjust =   1.00000000    
+ twolayer_flag =   1.00000000    
+ bc_flag =   0.00000000    
+ ht_windobs =   10.0000000    
+ ht_rhobs =   2.00000000    
+ ro_snow =   350.000000    
+ snow_d_init_const =   0.00000000    
+ topoflag =   1.00000000    
+ icond_flag =           0
+ albedo_snow_forest =  0.449999988    
+ albedo_snow_clearing =  0.600000024    
+ albedo_glacier =  0.400000006    
+ sfc_sublim_flag =   1.00000000    
+ multilayer_snowpack =           0
+ tsls_threshold =   24.0000000    
+ max_layers =           1
+ dz_snow_min =   1.00000005E-03
+
+ izero_snow_date =       90100
+
+ seaice_run =   0.00000000    
+
+
+
+
+
+ print_micromet =   0.00000000    
+ micromet_output_fname = outputs/micromet.gdat
+ print_snowtran =   0.00000000    
+ snowtran_output_fname = outputs/snowtran.gdat
+ Tabler_1_flag =   0.00000000    
+ tabler_sfc_path_name = outputs/tabler/
+ Tabler_2_flag =   0.00000000    
+ print_enbal =   0.00000000    
+ enbal_output_fname = outputs/enbal.gdat
+ print_snowpack =   0.00000000    
+ snowpack_output_fname = outputs/snowpack.gdat
+ print_multilayer =   0.00000000    
+ multilayer_output_fname = outputs/multilayer.gdat
+ print_user =   1.00000000    
+ print_inc =   8.00000000    
+ print_parallel =   1.00000000    
+ output_path_wo_assim = outputs/wo_assim/
+ output_path_wi_assim = outputs/wi_assim/
+ print_var_01 = n
+ print_var_02 = n
+ print_var_03 = n
+ print_var_04 = n
+ print_var_05 = n
+ print_var_06 = n
+ print_var_07 = n
+ print_var_08 = n
+ print_var_09 = n
+ print_var_10 = n
+ print_var_11 = n
+ print_var_12 = n
+ print_var_13 = n
+ print_var_14 = n
+ print_var_15 = n
+ print_var_16 = n
+ print_var_17 = n
+ print_var_18 = y
+ print_var_19 = n
+ print_var_20 = n
+ print_var_21 = n
+ print_var_22 = n
+ print_var_23 = n
+ print_var_24 = n
+ print_var_25 = n
+ print_var_26 = n
+ print_var_27 = n
+ print_var_28 = n
+ print_var_29 = n
+ print_var_30 = n
+
+ Number of processors =           8
+ Github branch name = parallel-sm-paper
+ Github commit hash = 4e5094e
+
+ You are running the large-domain Barnes oi scheme
+   This requires:
+   1) no missing data for the fields of interest
+   2) no missing stations during the simulation
+   3) met file must list stations in the same order
+   4) the number of nearest stns used is 9 or less
+   5)  **** no error checking for this is done ****
+
+ Generating nearest-station index.  Be patient.
+
+
+ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ c     Snow-Transport Modeling System - 3D (SnowTran-3D)    c
+ c                    Copyright (C) 1998                    c
+ c          by Glen E. Liston, InterWorks Consulting        c
+ c                    All Rights Reserved                   c
+ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
+                   WORKING ON MODEL TIME = 2018   3  23   3.0
+                   WORKING ON MODEL TIME = 2018   3  23   6.0
+                   WORKING ON MODEL TIME = 2018   3  23   9.0
+                   WORKING ON MODEL TIME = 2018   3  23  12.0
+                   WORKING ON MODEL TIME = 2018   3  23  15.0
+                   WORKING ON MODEL TIME = 2018   3  23  18.0
+                   WORKING ON MODEL TIME = 2018   3  23  21.0
+                   WORKING ON MODEL TIME = 2018   3  24   0.0
+                   WORKING ON MODEL TIME = 2018   3  24   3.0
+                   WORKING ON MODEL TIME = 2018   3  24   6.0
+                   WORKING ON MODEL TIME = 2018   3  24   9.0
+                   WORKING ON MODEL TIME = 2018   3  24  12.0
+                   WORKING ON MODEL TIME = 2018   3  24  15.0
+                   WORKING ON MODEL TIME = 2018   3  24  18.0
+                   WORKING ON MODEL TIME = 2018   3  24  21.0
+                   WORKING ON MODEL TIME = 2018   3  25   0.0
+
+ ReadParam Time :         2.29391502E-03
+ PreProc Time :           3.75497807E-03
+ Distribute Time :        0.00000000    
+ MicroMet Time :         0.495998681    
+ EnBal Time :             3.96611392E-02
+ SnowPack Time :          6.90803155E-02
+ SnowTran Time :          5.32761514E-02
+ SnowTran Comm Time :     1.19156502E-02
+ Gather Time :            0.00000000    
+ Output Time :            1.13424072E-02
+ Master NonInit Time :   0.673976123    
+ Master Total Time :     0.684954345    
+
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                  The SnowModel Run Has Finished                
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+[1687474052.879961] [r9i0n0:44608:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2ab2376d4ec0 was not matched
+[1687474052.879985] [r9i0n0:44608:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2ab2376d6f80 was not matched
+[1687474052.879989] [r9i0n0:44608:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2ab2402c73a0 was not matched
+[1687474052.879994] [r9i0n0:44608:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2ab2376d2e00 was not matched
+[1687474052.879998] [r9i0n0:44608:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2ab2376d0d40 was not matched
+[1687474052.880002] [r9i0n0:44608:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2ab2376cec80 was not matched
+[1687474052.880005] [r9i0n0:44608:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2ab2376cab00 was not matched
+[1687474052.880371] [r9i0n0:44610:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2aec870adec0 was not matched
+[1687474052.880391] [r9i0n0:44610:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2aec870aff80 was not matched
+[1687474052.880396] [r9i0n0:44610:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2aec8fc80a20 was not matched
+[1687474052.880399] [r9i0n0:44610:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2aec870abe00 was not matched
+[1687474052.880403] [r9i0n0:44610:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2aec870a9d40 was not matched
+[1687474052.880407] [r9i0n0:44610:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2aec8fc7a7e0 was not matched
+[1687474052.880410] [r9i0n0:44610:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2aec870a7c80 was not matched
+[1687474052.880841] [r9i0n0:44612:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b51ddc99f80 was not matched
+[1687474052.880861] [r9i0n0:44612:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b51ddc95e00 was not matched
+[1687474052.880865] [r9i0n0:44612:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b51ddc97ec0 was not matched
+[1687474052.880869] [r9i0n0:44612:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b51ddc93d40 was not matched
+[1687474052.880873] [r9i0n0:44612:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b51e278a460 was not matched
+[1687474052.880877] [r9i0n0:44612:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b51ddc8fbc0 was not matched
+[1687474052.880881] [r9i0n0:44612:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b51e2782160 was not matched
+[1687474052.881123] [r9i0n0:44606:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b75a4857f80 was not matched
+[1687474052.881141] [r9i0n0:44606:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b75a4855ec0 was not matched
+[1687474052.881146] [r9i0n0:44606:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b75a4853e00 was not matched
+[1687474052.881149] [r9i0n0:44606:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b75a4851d40 was not matched
+[1687474052.881153] [r9i0n0:44606:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b75a484fc80 was not matched
+[1687474052.881157] [r9i0n0:44606:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b75a484dbc0 was not matched
+[1687474052.881161] [r9i0n0:44606:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b75a484bb00 was not matched
+[1687474052.881245] [r9i0n0:44613:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b4940250ec0 was not matched
+[1687474052.881269] [r9i0n0:44613:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b4940252f80 was not matched
+[1687474052.881274] [r9i0n0:44613:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b494024ee00 was not matched
+[1687474052.881278] [r9i0n0:44613:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b4944d8ff60 was not matched
+[1687474052.881282] [r9i0n0:44613:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b494024cd40 was not matched
+[1687474052.881285] [r9i0n0:44613:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b494024ac80 was not matched
+[1687474052.881289] [r9i0n0:44613:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b4940248bc0 was not matched
+[1687474052.881296] [r9i0n0:44611:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2ad65d88de00 was not matched
+[1687474052.881316] [r9i0n0:44611:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2ad6623d6320 was not matched
+[1687474052.881321] [r9i0n0:44611:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2ad65d88fec0 was not matched
+[1687474052.881325] [r9i0n0:44611:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2ad65d891f80 was not matched
+[1687474052.881328] [r9i0n0:44611:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2ad65d88bd40 was not matched
+[1687474052.881332] [r9i0n0:44611:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2ad65d889c80 was not matched
+[1687474052.881335] [r9i0n0:44611:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2ad6623c7de0 was not matched
+[1687474052.881653] [r9i0n0:44609:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b1a0e294ec0 was not matched
+[1687474052.881678] [r9i0n0:44609:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b1a12ddf4a0 was not matched
+[1687474052.881682] [r9i0n0:44609:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b1a0e292e00 was not matched
+[1687474052.881686] [r9i0n0:44609:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b1a12ddb320 was not matched
+[1687474052.881690] [r9i0n0:44609:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b1a0e296f80 was not matched
+[1687474052.881693] [r9i0n0:44609:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b1a0e290d40 was not matched
+[1687474052.881696] [r9i0n0:44609:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b1a12dd0f60 was not matched
+[1687474052.881866] [r9i0n0:44607:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b0214c6ef80 was not matched
+[1687474052.881886] [r9i0n0:44607:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b0214c6ae00 was not matched
+[1687474052.881891] [r9i0n0:44607:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b0214c6cec0 was not matched
+[1687474052.881894] [r9i0n0:44607:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b0214c68d40 was not matched
+[1687474052.881898] [r9i0n0:44607:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b02197ab020 was not matched
+[1687474052.881902] [r9i0n0:44607:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b0214c66c80 was not matched
+[1687474052.881905] [r9i0n0:44607:0]      tag_match.c:61   UCX  WARN  unexpected tag-receive descriptor 0x2b0214c60a40 was not matched
+
+real	0m1.329s
+user	0m5.930s
+sys	0m1.379s
+/var/spool/pbs/mom_priv/jobs/1460081.chadmin1.ib0.cheyenne.ucar.edu.SC: line 69: cd: post_process/parallel: No such file or directory
+/var/spool/pbs/mom_priv/jobs/1460081.chadmin1.ib0.cheyenne.ucar.edu.SC: line 72: ./gdat_to_xr.sh: No such file or directory

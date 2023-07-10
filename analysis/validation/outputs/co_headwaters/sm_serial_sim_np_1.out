@@ -1,0 +1,453 @@
+Restoring modules from user's caf, for system: "ch"
+1
+np_1
+outputs/wo_assim/np_1/binary/
+rm: cannot remove 'outputs/wo_assim/np_1/binary/*.gdat': No such file or directory
+outputs/wo_assim/np_1/sim_params
+
+ snowmodel.par                                                                                       
+ nx =        3166
+ ny =        5167
+ deltax =   100.000000    
+ deltay =   100.000000    
+ xmn =   181450.00000000000     
+ ymn =   4061550.0000000000     
+ dt =   10800.0000    
+ iyear_init =        2018
+ imonth_init =           1
+ iday_init =           1
+ xhour_init =   3.00000000    
+ max_iter =         256
+ isingle_stn_flag =           0
+ igrads_metfile =           0
+ netcdf_fpath = /glade/scratch/rossamower/snow/snowmodel/data/wrf_30yr/
+ met_input_fname = met/nldas2/7_mk_mm/mm_3hrly_validation.dat
+ undef =  -9999.00000    
+ ascii_topoveg =   0.00000000    
+ topoveg_fname = ./topo_vege/NoAm_30m/topo_vege.gdat
+ topo_ascii_fname = xxxxxxx
+ veg_ascii_fname = xxxxxxx
+ veg_shd_25 =  0.100000001    
+ veg_shd_26 =  0.100000001    
+ veg_shd_27 =  0.100000001    
+ veg_shd_28 =  0.100000001    
+ veg_shd_29 =  0.100000001    
+ veg_shd_30 =  0.100000001    
+ const_veg_flag =   0.00000000    
+ iveg_ht_flag =           0
+ xlat =   39.0000000    
+ lat_solar_flag =          -1
+ UTC_flag =  -1.00000000    
+ run_micromet =   1.00000000    
+ run_enbal =   1.00000000    
+ run_snowpack =   1.00000000    
+ run_snowtran =   1.00000000    
+ irun_data_assim =           0
+ ihrestart_flag =          -2
+ i_dataassim_loop =           1
+ ihrestart_inc =           0
+ i_tair_flag =           1
+ i_rh_flag =           1
+ i_wind_flag =           1
+ i_solar_flag =           1
+ i_longwave_flag =           1
+ i_prec_flag =           1
+ ifill =           1
+ iobsint =           0
+ dn =   1.00000000    
+ barnes_lg_domain =   1.00000000    
+ n_stns_used =           4
+ snowmodel_line_flag =   0.00000000    
+ check_met_data =   0.00000000    
+ curve_len_scale =   200.000000    
+ slopewt =  0.250000000    
+ curvewt =  0.750000000    
+ curve_lg_scale_flag =   0.00000000    
+ windspd_min =   1.00000000    
+ lapse_rate_user_flag =           0
+ iprecip_lapse_rate_user_flag =           0
+ iprecip_scheme =           1
+ snowfall_frac =   3.00000000    
+ wind_lapse_rate =   0.00000000    
+ calc_subcanopy_met =   1.00000000    
+ gap_frac =  0.400000006    
+ cloud_frac_factor =  0.899999976    
+ use_shortwave_obs =   0.00000000    
+ use_longwave_obs =   0.00000000    
+ use_sfc_pressure_obs =   0.00000000    
+ cf_precip_flag =   0.00000000    
+ Utau_t_flag =   0.00000000    
+ Utau_t_const =  0.250000000    
+ subgrid_flag =   0.00000000    
+ tabler_dir =   270.000000    
+ slope_adjust =   1.00000000    
+ twolayer_flag =   1.00000000    
+ bc_flag =   0.00000000    
+ ht_windobs =   10.0000000    
+ ht_rhobs =   2.00000000    
+ ro_snow =   350.000000    
+ snow_d_init_const =   0.00000000    
+ topoflag =   1.00000000    
+ icond_flag =           0
+ albedo_snow_forest =  0.449999988    
+ albedo_snow_clearing =  0.600000024    
+ albedo_glacier =  0.400000006    
+ sfc_sublim_flag =   1.00000000    
+ multilayer_snowpack =           0
+ tsls_threshold =   24.0000000    
+ max_layers =           6
+ dz_snow_min =   1.00000005E-03
+ izero_snow_date =       90100
+ seaice_run =   0.00000000    
+ print_micromet =   0.00000000    
+ micromet_output_fname = outputs/micromet.gdat
+ print_snowtran =   0.00000000    
+ snowtran_output_fname = outputs/snowtran.gdat
+ Tabler_1_flag =   0.00000000    
+ tabler_sfc_path_name = outputs/tabler/
+ Tabler_2_flag =   0.00000000    
+ print_enbal =   0.00000000    
+ enbal_output_fname = outputs/enbal.gdat
+ print_snowpack =   0.00000000    
+ snowpack_output_fname = outputs/snowpack.gdat
+ print_multilayer =   0.00000000    
+ multilayer_output_fname = outputs/multilayer.gdat
+ print_user =   1.00000000    
+ print_inc =   8.00000000    
+ print_parallel =   1.00000000    
+ output_path_wo_assim = outputs/wo_assim/np_1/
+ output_path_wi_assim = outputs/wi_assim/
+ print_var_01 = y
+ print_var_02 = y
+ print_var_03 = y
+ print_var_04 = y
+ print_var_05 = y
+ print_var_06 = y
+ print_var_07 = y
+ print_var_08 = y
+ print_var_09 = y
+ print_var_10 = y
+ print_var_11 = y
+ print_var_12 = y
+ print_var_13 = y
+ print_var_14 = y
+ print_var_15 = n
+ print_var_16 = y
+ print_var_17 = y
+ print_var_18 = y
+ print_var_19 = n
+ print_var_20 = n
+ print_var_21 = n
+ print_var_22 = n
+ print_var_23 = n
+ print_var_24 = n
+ print_var_25 = n
+ print_var_26 = n
+ print_var_27 = n
+ print_var_28 = n
+ print_var_29 = n
+ print_var_30 = n
+
+ Number of processors =           1
+ Github branch name = parallel-sm-paper
+ Github commit hash = 4e5094e
+
+ You are running the large-domain Barnes oi scheme
+   This requires:
+   1) no missing data for the fields of interest
+   2) no missing stations during the simulation
+   3) met file must list stations in the same order
+   4) the number of nearest stns used is 9 or less
+   5)  **** no error checking for this is done ****
+
+ Generating nearest-station index.  Be patient.
+
+
+ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ c     Snow-Transport Modeling System - 3D (SnowTran-3D)    c
+ c                    Copyright (C) 1998                    c
+ c          by Glen E. Liston, InterWorks Consulting        c
+ c                    All Rights Reserved                   c
+ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
+                   WORKING ON MODEL TIME = 2018   1   1   3.0
+                   WORKING ON MODEL TIME = 2018   1   1   6.0
+                   WORKING ON MODEL TIME = 2018   1   1   9.0
+                   WORKING ON MODEL TIME = 2018   1   1  12.0
+                   WORKING ON MODEL TIME = 2018   1   1  15.0
+                   WORKING ON MODEL TIME = 2018   1   1  18.0
+                   WORKING ON MODEL TIME = 2018   1   1  21.0
+                   WORKING ON MODEL TIME = 2018   1   2   0.0
+                   WORKING ON MODEL TIME = 2018   1   2   3.0
+                   WORKING ON MODEL TIME = 2018   1   2   6.0
+                   WORKING ON MODEL TIME = 2018   1   2   9.0
+                   WORKING ON MODEL TIME = 2018   1   2  12.0
+                   WORKING ON MODEL TIME = 2018   1   2  15.0
+                   WORKING ON MODEL TIME = 2018   1   2  18.0
+                   WORKING ON MODEL TIME = 2018   1   2  21.0
+                   WORKING ON MODEL TIME = 2018   1   3   0.0
+                   WORKING ON MODEL TIME = 2018   1   3   3.0
+                   WORKING ON MODEL TIME = 2018   1   3   6.0
+                   WORKING ON MODEL TIME = 2018   1   3   9.0
+                   WORKING ON MODEL TIME = 2018   1   3  12.0
+                   WORKING ON MODEL TIME = 2018   1   3  15.0
+                   WORKING ON MODEL TIME = 2018   1   3  18.0
+                   WORKING ON MODEL TIME = 2018   1   3  21.0
+                   WORKING ON MODEL TIME = 2018   1   4   0.0
+                   WORKING ON MODEL TIME = 2018   1   4   3.0
+                   WORKING ON MODEL TIME = 2018   1   4   6.0
+                   WORKING ON MODEL TIME = 2018   1   4   9.0
+                   WORKING ON MODEL TIME = 2018   1   4  12.0
+                   WORKING ON MODEL TIME = 2018   1   4  15.0
+                   WORKING ON MODEL TIME = 2018   1   4  18.0
+                   WORKING ON MODEL TIME = 2018   1   4  21.0
+                   WORKING ON MODEL TIME = 2018   1   5   0.0
+                   WORKING ON MODEL TIME = 2018   1   5   3.0
+                   WORKING ON MODEL TIME = 2018   1   5   6.0
+                   WORKING ON MODEL TIME = 2018   1   5   9.0
+                   WORKING ON MODEL TIME = 2018   1   5  12.0
+                   WORKING ON MODEL TIME = 2018   1   5  15.0
+                   WORKING ON MODEL TIME = 2018   1   5  18.0
+                   WORKING ON MODEL TIME = 2018   1   5  21.0
+                   WORKING ON MODEL TIME = 2018   1   6   0.0
+                   WORKING ON MODEL TIME = 2018   1   6   3.0
+                   WORKING ON MODEL TIME = 2018   1   6   6.0
+                   WORKING ON MODEL TIME = 2018   1   6   9.0
+                   WORKING ON MODEL TIME = 2018   1   6  12.0
+                   WORKING ON MODEL TIME = 2018   1   6  15.0
+                   WORKING ON MODEL TIME = 2018   1   6  18.0
+                   WORKING ON MODEL TIME = 2018   1   6  21.0
+                   WORKING ON MODEL TIME = 2018   1   7   0.0
+                   WORKING ON MODEL TIME = 2018   1   7   3.0
+                   WORKING ON MODEL TIME = 2018   1   7   6.0
+                   WORKING ON MODEL TIME = 2018   1   7   9.0
+                   WORKING ON MODEL TIME = 2018   1   7  12.0
+                   WORKING ON MODEL TIME = 2018   1   7  15.0
+                   WORKING ON MODEL TIME = 2018   1   7  18.0
+                   WORKING ON MODEL TIME = 2018   1   7  21.0
+                   WORKING ON MODEL TIME = 2018   1   8   0.0
+                   WORKING ON MODEL TIME = 2018   1   8   3.0
+                   WORKING ON MODEL TIME = 2018   1   8   6.0
+                   WORKING ON MODEL TIME = 2018   1   8   9.0
+                   WORKING ON MODEL TIME = 2018   1   8  12.0
+                   WORKING ON MODEL TIME = 2018   1   8  15.0
+                   WORKING ON MODEL TIME = 2018   1   8  18.0
+                   WORKING ON MODEL TIME = 2018   1   8  21.0
+                   WORKING ON MODEL TIME = 2018   1   9   0.0
+                   WORKING ON MODEL TIME = 2018   1   9   3.0
+                   WORKING ON MODEL TIME = 2018   1   9   6.0
+                   WORKING ON MODEL TIME = 2018   1   9   9.0
+                   WORKING ON MODEL TIME = 2018   1   9  12.0
+                   WORKING ON MODEL TIME = 2018   1   9  15.0
+                   WORKING ON MODEL TIME = 2018   1   9  18.0
+                   WORKING ON MODEL TIME = 2018   1   9  21.0
+                   WORKING ON MODEL TIME = 2018   1  10   0.0
+                   WORKING ON MODEL TIME = 2018   1  10   3.0
+                   WORKING ON MODEL TIME = 2018   1  10   6.0
+                   WORKING ON MODEL TIME = 2018   1  10   9.0
+                   WORKING ON MODEL TIME = 2018   1  10  12.0
+                   WORKING ON MODEL TIME = 2018   1  10  15.0
+                   WORKING ON MODEL TIME = 2018   1  10  18.0
+                   WORKING ON MODEL TIME = 2018   1  10  21.0
+                   WORKING ON MODEL TIME = 2018   1  11   0.0
+                   WORKING ON MODEL TIME = 2018   1  11   3.0
+                   WORKING ON MODEL TIME = 2018   1  11   6.0
+                   WORKING ON MODEL TIME = 2018   1  11   9.0
+                   WORKING ON MODEL TIME = 2018   1  11  12.0
+                   WORKING ON MODEL TIME = 2018   1  11  15.0
+                   WORKING ON MODEL TIME = 2018   1  11  18.0
+                   WORKING ON MODEL TIME = 2018   1  11  21.0
+                   WORKING ON MODEL TIME = 2018   1  12   0.0
+                   WORKING ON MODEL TIME = 2018   1  12   3.0
+                   WORKING ON MODEL TIME = 2018   1  12   6.0
+                   WORKING ON MODEL TIME = 2018   1  12   9.0
+                   WORKING ON MODEL TIME = 2018   1  12  12.0
+                   WORKING ON MODEL TIME = 2018   1  12  15.0
+                   WORKING ON MODEL TIME = 2018   1  12  18.0
+                   WORKING ON MODEL TIME = 2018   1  12  21.0
+                   WORKING ON MODEL TIME = 2018   1  13   0.0
+                   WORKING ON MODEL TIME = 2018   1  13   3.0
+                   WORKING ON MODEL TIME = 2018   1  13   6.0
+                   WORKING ON MODEL TIME = 2018   1  13   9.0
+                   WORKING ON MODEL TIME = 2018   1  13  12.0
+                   WORKING ON MODEL TIME = 2018   1  13  15.0
+                   WORKING ON MODEL TIME = 2018   1  13  18.0
+                   WORKING ON MODEL TIME = 2018   1  13  21.0
+                   WORKING ON MODEL TIME = 2018   1  14   0.0
+                   WORKING ON MODEL TIME = 2018   1  14   3.0
+                   WORKING ON MODEL TIME = 2018   1  14   6.0
+                   WORKING ON MODEL TIME = 2018   1  14   9.0
+                   WORKING ON MODEL TIME = 2018   1  14  12.0
+                   WORKING ON MODEL TIME = 2018   1  14  15.0
+                   WORKING ON MODEL TIME = 2018   1  14  18.0
+                   WORKING ON MODEL TIME = 2018   1  14  21.0
+                   WORKING ON MODEL TIME = 2018   1  15   0.0
+                   WORKING ON MODEL TIME = 2018   1  15   3.0
+                   WORKING ON MODEL TIME = 2018   1  15   6.0
+                   WORKING ON MODEL TIME = 2018   1  15   9.0
+                   WORKING ON MODEL TIME = 2018   1  15  12.0
+                   WORKING ON MODEL TIME = 2018   1  15  15.0
+                   WORKING ON MODEL TIME = 2018   1  15  18.0
+                   WORKING ON MODEL TIME = 2018   1  15  21.0
+                   WORKING ON MODEL TIME = 2018   1  16   0.0
+                   WORKING ON MODEL TIME = 2018   1  16   3.0
+                   WORKING ON MODEL TIME = 2018   1  16   6.0
+                   WORKING ON MODEL TIME = 2018   1  16   9.0
+                   WORKING ON MODEL TIME = 2018   1  16  12.0
+                   WORKING ON MODEL TIME = 2018   1  16  15.0
+                   WORKING ON MODEL TIME = 2018   1  16  18.0
+                   WORKING ON MODEL TIME = 2018   1  16  21.0
+                   WORKING ON MODEL TIME = 2018   1  17   0.0
+                   WORKING ON MODEL TIME = 2018   1  17   3.0
+                   WORKING ON MODEL TIME = 2018   1  17   6.0
+                   WORKING ON MODEL TIME = 2018   1  17   9.0
+                   WORKING ON MODEL TIME = 2018   1  17  12.0
+                   WORKING ON MODEL TIME = 2018   1  17  15.0
+                   WORKING ON MODEL TIME = 2018   1  17  18.0
+                   WORKING ON MODEL TIME = 2018   1  17  21.0
+                   WORKING ON MODEL TIME = 2018   1  18   0.0
+                   WORKING ON MODEL TIME = 2018   1  18   3.0
+                   WORKING ON MODEL TIME = 2018   1  18   6.0
+                   WORKING ON MODEL TIME = 2018   1  18   9.0
+                   WORKING ON MODEL TIME = 2018   1  18  12.0
+                   WORKING ON MODEL TIME = 2018   1  18  15.0
+                   WORKING ON MODEL TIME = 2018   1  18  18.0
+                   WORKING ON MODEL TIME = 2018   1  18  21.0
+                   WORKING ON MODEL TIME = 2018   1  19   0.0
+                   WORKING ON MODEL TIME = 2018   1  19   3.0
+                   WORKING ON MODEL TIME = 2018   1  19   6.0
+                   WORKING ON MODEL TIME = 2018   1  19   9.0
+                   WORKING ON MODEL TIME = 2018   1  19  12.0
+                   WORKING ON MODEL TIME = 2018   1  19  15.0
+                   WORKING ON MODEL TIME = 2018   1  19  18.0
+                   WORKING ON MODEL TIME = 2018   1  19  21.0
+                   WORKING ON MODEL TIME = 2018   1  20   0.0
+                   WORKING ON MODEL TIME = 2018   1  20   3.0
+                   WORKING ON MODEL TIME = 2018   1  20   6.0
+                   WORKING ON MODEL TIME = 2018   1  20   9.0
+                   WORKING ON MODEL TIME = 2018   1  20  12.0
+                   WORKING ON MODEL TIME = 2018   1  20  15.0
+                   WORKING ON MODEL TIME = 2018   1  20  18.0
+                   WORKING ON MODEL TIME = 2018   1  20  21.0
+                   WORKING ON MODEL TIME = 2018   1  21   0.0
+                   WORKING ON MODEL TIME = 2018   1  21   3.0
+                   WORKING ON MODEL TIME = 2018   1  21   6.0
+                   WORKING ON MODEL TIME = 2018   1  21   9.0
+                   WORKING ON MODEL TIME = 2018   1  21  12.0
+                   WORKING ON MODEL TIME = 2018   1  21  15.0
+                   WORKING ON MODEL TIME = 2018   1  21  18.0
+                   WORKING ON MODEL TIME = 2018   1  21  21.0
+                   WORKING ON MODEL TIME = 2018   1  22   0.0
+                   WORKING ON MODEL TIME = 2018   1  22   3.0
+                   WORKING ON MODEL TIME = 2018   1  22   6.0
+                   WORKING ON MODEL TIME = 2018   1  22   9.0
+                   WORKING ON MODEL TIME = 2018   1  22  12.0
+                   WORKING ON MODEL TIME = 2018   1  22  15.0
+                   WORKING ON MODEL TIME = 2018   1  22  18.0
+                   WORKING ON MODEL TIME = 2018   1  22  21.0
+                   WORKING ON MODEL TIME = 2018   1  23   0.0
+                   WORKING ON MODEL TIME = 2018   1  23   3.0
+                   WORKING ON MODEL TIME = 2018   1  23   6.0
+                   WORKING ON MODEL TIME = 2018   1  23   9.0
+                   WORKING ON MODEL TIME = 2018   1  23  12.0
+                   WORKING ON MODEL TIME = 2018   1  23  15.0
+                   WORKING ON MODEL TIME = 2018   1  23  18.0
+                   WORKING ON MODEL TIME = 2018   1  23  21.0
+                   WORKING ON MODEL TIME = 2018   1  24   0.0
+                   WORKING ON MODEL TIME = 2018   1  24   3.0
+                   WORKING ON MODEL TIME = 2018   1  24   6.0
+                   WORKING ON MODEL TIME = 2018   1  24   9.0
+                   WORKING ON MODEL TIME = 2018   1  24  12.0
+                   WORKING ON MODEL TIME = 2018   1  24  15.0
+                   WORKING ON MODEL TIME = 2018   1  24  18.0
+                   WORKING ON MODEL TIME = 2018   1  24  21.0
+                   WORKING ON MODEL TIME = 2018   1  25   0.0
+                   WORKING ON MODEL TIME = 2018   1  25   3.0
+                   WORKING ON MODEL TIME = 2018   1  25   6.0
+                   WORKING ON MODEL TIME = 2018   1  25   9.0
+                   WORKING ON MODEL TIME = 2018   1  25  12.0
+                   WORKING ON MODEL TIME = 2018   1  25  15.0
+                   WORKING ON MODEL TIME = 2018   1  25  18.0
+                   WORKING ON MODEL TIME = 2018   1  25  21.0
+                   WORKING ON MODEL TIME = 2018   1  26   0.0
+                   WORKING ON MODEL TIME = 2018   1  26   3.0
+                   WORKING ON MODEL TIME = 2018   1  26   6.0
+                   WORKING ON MODEL TIME = 2018   1  26   9.0
+                   WORKING ON MODEL TIME = 2018   1  26  12.0
+                   WORKING ON MODEL TIME = 2018   1  26  15.0
+                   WORKING ON MODEL TIME = 2018   1  26  18.0
+                   WORKING ON MODEL TIME = 2018   1  26  21.0
+                   WORKING ON MODEL TIME = 2018   1  27   0.0
+                   WORKING ON MODEL TIME = 2018   1  27   3.0
+                   WORKING ON MODEL TIME = 2018   1  27   6.0
+                   WORKING ON MODEL TIME = 2018   1  27   9.0
+                   WORKING ON MODEL TIME = 2018   1  27  12.0
+                   WORKING ON MODEL TIME = 2018   1  27  15.0
+                   WORKING ON MODEL TIME = 2018   1  27  18.0
+                   WORKING ON MODEL TIME = 2018   1  27  21.0
+                   WORKING ON MODEL TIME = 2018   1  28   0.0
+                   WORKING ON MODEL TIME = 2018   1  28   3.0
+                   WORKING ON MODEL TIME = 2018   1  28   6.0
+                   WORKING ON MODEL TIME = 2018   1  28   9.0
+                   WORKING ON MODEL TIME = 2018   1  28  12.0
+                   WORKING ON MODEL TIME = 2018   1  28  15.0
+                   WORKING ON MODEL TIME = 2018   1  28  18.0
+                   WORKING ON MODEL TIME = 2018   1  28  21.0
+                   WORKING ON MODEL TIME = 2018   1  29   0.0
+                   WORKING ON MODEL TIME = 2018   1  29   3.0
+                   WORKING ON MODEL TIME = 2018   1  29   6.0
+                   WORKING ON MODEL TIME = 2018   1  29   9.0
+                   WORKING ON MODEL TIME = 2018   1  29  12.0
+                   WORKING ON MODEL TIME = 2018   1  29  15.0
+                   WORKING ON MODEL TIME = 2018   1  29  18.0
+                   WORKING ON MODEL TIME = 2018   1  29  21.0
+                   WORKING ON MODEL TIME = 2018   1  30   0.0
+                   WORKING ON MODEL TIME = 2018   1  30   3.0
+                   WORKING ON MODEL TIME = 2018   1  30   6.0
+                   WORKING ON MODEL TIME = 2018   1  30   9.0
+                   WORKING ON MODEL TIME = 2018   1  30  12.0
+                   WORKING ON MODEL TIME = 2018   1  30  15.0
+                   WORKING ON MODEL TIME = 2018   1  30  18.0
+                   WORKING ON MODEL TIME = 2018   1  30  21.0
+                   WORKING ON MODEL TIME = 2018   1  31   0.0
+                   WORKING ON MODEL TIME = 2018   1  31   3.0
+                   WORKING ON MODEL TIME = 2018   1  31   6.0
+                   WORKING ON MODEL TIME = 2018   1  31   9.0
+                   WORKING ON MODEL TIME = 2018   1  31  12.0
+                   WORKING ON MODEL TIME = 2018   1  31  15.0
+                   WORKING ON MODEL TIME = 2018   1  31  18.0
+                   WORKING ON MODEL TIME = 2018   1  31  21.0
+                   WORKING ON MODEL TIME = 2018   2   1   0.0
+                   WORKING ON MODEL TIME = 2018   2   1   3.0
+                   WORKING ON MODEL TIME = 2018   2   1   6.0
+                   WORKING ON MODEL TIME = 2018   2   1   9.0
+                   WORKING ON MODEL TIME = 2018   2   1  12.0
+                   WORKING ON MODEL TIME = 2018   2   1  15.0
+                   WORKING ON MODEL TIME = 2018   2   1  18.0
+                   WORKING ON MODEL TIME = 2018   2   1  21.0
+                   WORKING ON MODEL TIME = 2018   2   2   0.0
+
+ ReadParam Time :         3.92569788E-03
+ PreProc Time :           170.889603    
+ Distribute Time :        0.00000000    
+ MicroMet Time :          15577.4219    
+ EnBal Time :             1898.31067    
+ SnowPack Time :          3019.57983    
+ SnowTran Time :          3757.09888    
+ SnowTran Comm Time :     3.96100950    
+ Gather Time :            0.00000000    
+ Output Time :            476.134552    
+ Master NonInit Time :    24728.5469    
+ Master Total Time :      24916.0664    
+
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                  The SnowModel Run Has Finished                
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+real	415m17.026s
+user	411m45.377s
+sys	3m26.931s

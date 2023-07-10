@@ -1,0 +1,356 @@
+Restoring modules from user's caf, for system: "ch"
+2
+np_2
+1125527
+job output
+sm_parallel_sim_.o1125527
+output_path_wo_assim = outputs/wo_assim/np_2/
+outputs/wo_assim/np_2/binary/
+rm: cannot remove 'outputs/wo_assim/np_2/binary/*.gdat': No such file or directory
+outputs/wo_assim/np_2/sim_params
+ snowmodel.par                                                                                       
+ snowmodel.par                                                                                       
+ nx =        3166
+ nx =        3166
+ ny =        5167
+ ny =        5167
+ deltax =   100.000000    
+ deltay =   100.000000    
+ xmn =   181450.00000000000     
+ ymn =   4061550.0000000000     
+ dt =   10800.0000    
+ iyear_init =        2018
+ imonth_init =           3
+ iday_init =          23
+ xhour_init =   3.00000000    
+ max_iter =          16
+ isingle_stn_flag =           0
+ igrads_metfile =           0
+ met_input_fname = met/nldas2/7_mk_mm/mm_3hrly_improvement.dat
+ undef =  -9999.00000    
+ ascii_topoveg =   0.00000000    
+ topoveg_fname = ./topo_vege/NoAm_30m/topo_vege.gdat
+ topo_ascii_fname = xxxxxxx
+ deltax =   100.000000    
+ veg_ascii_fname = xxxxxxx
+ deltay =   100.000000    
+ veg_shd_25 =  0.100000001    
+ xmn =   181450.00000000000     
+ veg_shd_26 =  0.100000001    
+ ymn =   4061550.0000000000     
+ veg_shd_27 =  0.100000001    
+ dt =   10800.0000    
+ veg_shd_28 =  0.100000001    
+ iyear_init =        2018
+ veg_shd_29 =  0.100000001    
+ imonth_init =           3
+ veg_shd_30 =  0.100000001    
+ iday_init =          23
+ const_veg_flag =   0.00000000    
+ xhour_init =   3.00000000    
+ iveg_ht_flag =           0
+ max_iter =          16
+ xlat =   39.0000000    
+ isingle_stn_flag =           0
+ lat_solar_flag =          -1
+ igrads_metfile =           0
+ UTC_flag =  -1.00000000    
+ met_input_fname = met/nldas2/7_mk_mm/mm_3hrly_improvement.dat
+ run_micromet =   1.00000000    
+ undef =  -9999.00000    
+ run_enbal =   1.00000000    
+ ascii_topoveg =   0.00000000    
+ run_snowpack =   1.00000000    
+ topoveg_fname = ./topo_vege/NoAm_30m/topo_vege.gdat
+ run_snowtran =   1.00000000    
+ topo_ascii_fname = xxxxxxx
+ irun_data_assim =           0
+ veg_ascii_fname = xxxxxxx
+ ihrestart_flag =          -2
+ veg_shd_25 =  0.100000001    
+ i_dataassim_loop =           1
+ veg_shd_26 =  0.100000001    
+ ihrestart_inc =           0
+ veg_shd_27 =  0.100000001    
+ i_tair_flag =           1
+ veg_shd_28 =  0.100000001    
+ i_rh_flag =           1
+ veg_shd_29 =  0.100000001    
+ i_wind_flag =           1
+ veg_shd_30 =  0.100000001    
+ i_solar_flag =           1
+ const_veg_flag =   0.00000000    
+ i_longwave_flag =           1
+ iveg_ht_flag =           0
+ i_prec_flag =           1
+ xlat =   39.0000000    
+ ifill =           1
+ lat_solar_flag =          -1
+ iobsint =           0
+ UTC_flag =  -1.00000000    
+ dn =   1.00000000    
+ run_micromet =   1.00000000    
+ barnes_lg_domain =   1.00000000    
+ run_enbal =   1.00000000    
+ n_stns_used =           4
+ run_snowpack =   1.00000000    
+ snowmodel_line_flag =   0.00000000    
+ run_snowtran =   1.00000000    
+ check_met_data =   0.00000000    
+ irun_data_assim =           0
+ curve_len_scale =   200.000000    
+ ihrestart_flag =          -2
+ slopewt =  0.250000000    
+ i_dataassim_loop =           1
+ curvewt =  0.750000000    
+ ihrestart_inc =           0
+ curve_lg_scale_flag =   0.00000000    
+ i_tair_flag =           1
+ windspd_min =   1.00000000    
+ i_rh_flag =           1
+ lapse_rate_user_flag =           0
+ i_wind_flag =           1
+ iprecip_lapse_rate_user_flag =           0
+ i_solar_flag =           1
+ iprecip_scheme =           1
+ i_longwave_flag =           1
+ snowfall_frac =   3.00000000    
+ i_prec_flag =           1
+ wind_lapse_rate =   0.00000000    
+ ifill =           1
+ calc_subcanopy_met =   1.00000000    
+ iobsint =           0
+ gap_frac =  0.400000006    
+ dn =   1.00000000    
+ cloud_frac_factor =  0.899999976    
+ barnes_lg_domain =   1.00000000    
+ use_shortwave_obs =   0.00000000    
+ n_stns_used =           4
+ use_longwave_obs =   0.00000000    
+ snowmodel_line_flag =   0.00000000    
+ use_sfc_pressure_obs =   0.00000000    
+ check_met_data =   0.00000000    
+ cf_precip_flag =   0.00000000    
+ curve_len_scale =   200.000000    
+ Utau_t_flag =   0.00000000    
+ slopewt =  0.250000000    
+ Utau_t_const =  0.250000000    
+ curvewt =  0.750000000    
+ subgrid_flag =   0.00000000    
+ curve_lg_scale_flag =   0.00000000    
+ tabler_dir =   270.000000    
+ windspd_min =   1.00000000    
+ slope_adjust =   1.00000000    
+ lapse_rate_user_flag =           0
+ twolayer_flag =   1.00000000    
+ iprecip_lapse_rate_user_flag =           0
+ bc_flag =   0.00000000    
+ iprecip_scheme =           1
+ ht_windobs =   10.0000000    
+ snowfall_frac =   3.00000000    
+ ht_rhobs =   2.00000000    
+ wind_lapse_rate =   0.00000000    
+ ro_snow =   350.000000    
+ calc_subcanopy_met =   1.00000000    
+ snow_d_init_const =   0.00000000    
+ gap_frac =  0.400000006    
+ topoflag =   1.00000000    
+ cloud_frac_factor =  0.899999976    
+ icond_flag =           0
+ use_shortwave_obs =   0.00000000    
+ albedo_snow_forest =  0.449999988    
+ use_longwave_obs =   0.00000000    
+ albedo_snow_clearing =  0.600000024    
+ use_sfc_pressure_obs =   0.00000000    
+ albedo_glacier =  0.400000006    
+ cf_precip_flag =   0.00000000    
+ sfc_sublim_flag =   1.00000000    
+ Utau_t_flag =   0.00000000    
+ multilayer_snowpack =           0
+ Utau_t_const =  0.250000000    
+ tsls_threshold =   24.0000000    
+ subgrid_flag =   0.00000000    
+ max_layers =           6
+ tabler_dir =   270.000000    
+ dz_snow_min =   1.00000005E-03
+ slope_adjust =   1.00000000    
+ izero_snow_date =       90100
+ twolayer_flag =   1.00000000    
+ seaice_run =   0.00000000    
+ bc_flag =   0.00000000    
+ print_micromet =   0.00000000    
+ ht_windobs =   10.0000000    
+ micromet_output_fname = outputs/micromet.gdat
+ ht_rhobs =   2.00000000    
+ print_snowtran =   0.00000000    
+ ro_snow =   350.000000    
+ snowtran_output_fname = outputs/snowtran.gdat
+ snow_d_init_const =   0.00000000    
+ Tabler_1_flag =   0.00000000    
+ topoflag =   1.00000000    
+ tabler_sfc_path_name = outputs/tabler/
+ icond_flag =           0
+ Tabler_2_flag =   0.00000000    
+ albedo_snow_forest =  0.449999988    
+ print_enbal =   0.00000000    
+ albedo_snow_clearing =  0.600000024    
+ enbal_output_fname = outputs/enbal.gdat
+ albedo_glacier =  0.400000006    
+ print_snowpack =   0.00000000    
+ sfc_sublim_flag =   1.00000000    
+ snowpack_output_fname = outputs/snowpack.gdat
+ multilayer_snowpack =           0
+ print_multilayer =   0.00000000    
+ tsls_threshold =   24.0000000    
+ multilayer_output_fname = outputs/multilayer.gdat
+ max_layers =           6
+ print_user =   1.00000000    
+ dz_snow_min =   1.00000005E-03
+ print_inc =   8.00000000    
+ izero_snow_date =       90100
+ output_path_wo_assim = outputs/wo_assim/np_2/
+ seaice_run =   0.00000000    
+ output_path_wi_assim = outputs/wi_assim/
+ print_micromet =   0.00000000    
+ print_var_01 = y
+ micromet_output_fname = outputs/micromet.gdat
+ print_var_02 = y
+ print_snowtran =   0.00000000    
+ print_var_03 = y
+ snowtran_output_fname = outputs/snowtran.gdat
+ print_var_04 = y
+ print_var_05 = y
+ Tabler_1_flag =   0.00000000    
+ print_var_06 = y
+ tabler_sfc_path_name = outputs/tabler/
+ print_var_07 = y
+ Tabler_2_flag =   0.00000000    
+ print_var_08 = y
+ print_enbal =   0.00000000    
+ print_var_09 = y
+ enbal_output_fname = outputs/enbal.gdat
+ print_var_10 = y
+ print_snowpack =   0.00000000    
+ print_var_11 = y
+ snowpack_output_fname = outputs/snowpack.gdat
+ print_var_12 = y
+ print_multilayer =   0.00000000    
+ print_var_13 = y
+ multilayer_output_fname = outputs/multilayer.gdat
+ print_var_14 = y
+ print_user =   1.00000000    
+ print_var_15 = n
+ print_inc =   8.00000000    
+ print_var_16 = y
+ output_path_wo_assim = outputs/wo_assim/np_2/
+ print_var_17 = y
+ output_path_wi_assim = outputs/wi_assim/
+ print_var_18 = y
+ print_var_01 = y
+ print_var_19 = n
+ print_var_02 = y
+ print_var_20 = n
+ print_var_03 = y
+ print_var_21 = n
+ print_var_04 = y
+ print_var_22 = n
+ print_var_05 = y
+ print_var_23 = n
+ print_var_06 = y
+ print_var_24 = n
+ print_var_07 = y
+ print_var_25 = n
+ print_var_08 = y
+ print_var_26 = n
+ print_var_09 = y
+ print_var_27 = n
+ print_var_10 = y
+ print_var_28 = n
+ print_var_11 = y
+ print_var_29 = n
+ print_var_12 = y
+ print_var_30 = n
+ print_var_13 = y
+ print_var_14 = y
+ print_var_15 = n
+ print_var_16 = y
+ print_var_17 = y
+ print_var_18 = y
+ print_var_19 = n
+ print_var_20 = n
+ print_var_21 = n
+ print_var_22 = n
+ print_var_23 = n
+ print_var_24 = n
+ print_var_25 = n
+ print_var_26 = n
+ print_var_27 = n
+ print_var_28 = n
+ print_var_29 = n
+ print_var_30 = n
+ You are running the large-domain Barnes oi scheme
+   This requires:
+   1) no missing data for the fields of interest
+   2) no missing stations during the simulation
+   3) met file must list stations in the same order
+   4) the number of nearest stations used is 9 or less
+   5)  **** no error checking for this is done ****
+ Generating nearest-station index.  Be patient.
+ You are running the large-domain Barnes oi scheme
+   This requires:
+   1) no missing data for the fields of interest
+   2) no missing stations during the simulation
+   3) met file must list stations in the same order
+   4) the number of nearest stations used is 9 or less
+   5)  **** no error checking for this is done ****
+ Generating nearest-station index.  Be patient.
+ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ c     Snow-Transport Modeling System - 3D (SnowTran-3D)    c
+ c                    Copyright (C) 1998                    c
+ c          by Glen E. Liston, InterWorks Consulting        c
+ c                    All Rights Reserved                   c
+ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ c     Snow-Transport Modeling System - 3D (SnowTran-3D)    c
+ c                    Copyright (C) 1998                    c
+ c          by Glen E. Liston, InterWorks Consulting        c
+ c                    All Rights Reserved                   c
+ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+                   WORKING ON MODEL TIME = 2018   3  23   3.0
+                   WORKING ON MODEL TIME = 2018   3  23   6.0
+                   WORKING ON MODEL TIME = 2018   3  23   9.0
+                   WORKING ON MODEL TIME = 2018   3  23  12.0
+                   WORKING ON MODEL TIME = 2018   3  23  15.0
+                   WORKING ON MODEL TIME = 2018   3  23  18.0
+                   WORKING ON MODEL TIME = 2018   3  23  21.0
+                   WORKING ON MODEL TIME = 2018   3  24   0.0
+                   WORKING ON MODEL TIME = 2018   3  24   3.0
+                   WORKING ON MODEL TIME = 2018   3  24   6.0
+                   WORKING ON MODEL TIME = 2018   3  24   9.0
+                   WORKING ON MODEL TIME = 2018   3  24  12.0
+                   WORKING ON MODEL TIME = 2018   3  24  15.0
+                   WORKING ON MODEL TIME = 2018   3  24  18.0
+                   WORKING ON MODEL TIME = 2018   3  24  21.0
+                   WORKING ON MODEL TIME = 2018   3  25   0.0
+ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+                  The SnowModel Run Has Finished                
+ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ ReadParam Time :    11.5783119    
+ Preproc Time :    394.226990    
+ Micromet Time :    692.900085    
+ Enbal Time :    80.6428680    
+ Snowpack Time :    138.032791    
+ SnowTran Time :    203.115158    
+ Output Time :    133.283463    
+ Master NonInit Time :    1269.68323    
+ Master Total Time :    1675.48865    
+ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+                  The SnowModel Run Has Finished                
+ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+real	27m57.414s
+user	55m9.698s
+sys	0m34.011s
