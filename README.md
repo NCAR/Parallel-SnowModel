@@ -62,7 +62,7 @@ The core components of SnowModel as seen through the primary submodules within E
 ---     
 - Liston, G. E., & Elder, K. (2006). A distributed snow-evolution modeling system (SnowModel). Journal of Hydrometeorology, 7(6), 1259-1276.  
 - Liston, G. E., Itkin, P., Stroeve, J., Tschudi, M., Stewart, J. S., Pedersen, S. H., Reinking, A. K., and Elder, K. (2020). A Lagrangian snow‐evolution system for sea‐ice applications (SnowModel‐LG): Part I—Model description, Journal of Geophysical Research: Oceans, 125, e2019JC015913.  
-- Mower, R., Gutmann, E. D., Lundquist, J., Liston, G. E., and Rasmussen, S. (2023). Mo' data, sno' problem: A parallel implementation of SnowModel (Distributed Snow-Evolution Modeling System), Journal of Geoscientific Model Development.   
+- Mower, R., Gutmann, E. D., Lundquist, J., Liston, G. E., and Rasmussen, S. (2023). Parrallel SnowModel (v1.0): a parallel implementation of a Distributed Snow-Evolution Modeling System (SnowModel), Journal of Geoscientific Model Development.   
 ---      
 ## **Maintainers**   
 ---    
