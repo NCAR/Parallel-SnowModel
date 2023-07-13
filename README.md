@@ -7,7 +7,7 @@
 ---      
 ## **OVERVIEW**  
 ---  
-This repository contains developments to SnowModel, a distributed snow-evolution modeling system (Liston and Elder, 2006; also see the Appendices in Liston et al. (2020)), as detailed in Mower et al. (2023). Model developments were focused on parallelizing the serial version of the code using Coarray Fortran syntax. This repository provides the Parallel SnowModel code and the analysis contained in Mower et al. (2023).  
+This repository contains developments to SnowModel, a distributed snow-evolution modeling system (Liston and Elder, 2006a; also see the Appendices in Liston et al. (2020)), as detailed in Mower et al. (2023). Model developments were focused on parallelizing the serial version of the code using Coarray Fortran syntax. This repository provides the Parallel SnowModel code and the analysis contained in Mower et al. (2023).  
    
 ***NOTE: This repository is intended to supplement the original version of SnowModel. For example, it does not contain the preprocessing steps necessary to run simulations. Please reach out to Glen Liston for more information about the original version of SnowModel.***     
                
@@ -60,7 +60,8 @@ The core components of SnowModel as seen through the primary submodules within E
 ---     
 ## **References**  
 ---     
-- Liston, G. E., & Elder, K. (2006). A distributed snow-evolution modeling system (SnowModel). Journal of Hydrometeorology, 7(6), 1259-1276.  
+- Liston, G. E., & Elder, K. (2006a). A distributed snow-evolution modeling system (SnowModel). Journal of Hydrometeorology, 7(6), 1259-1276. 
+- Liston, G. E., & Elder, K. (2006b). A meteorological distribution system for high-resolution terrestrial modeling (MicroMet). Journal of Hydrometeorology, 7, 217-234.
 - Liston, G. E., Itkin, P., Stroeve, J., Tschudi, M., Stewart, J. S., Pedersen, S. H., Reinking, A. K., and Elder, K. (2020). A Lagrangian snow‐evolution system for sea‐ice applications (SnowModel‐LG): Part I—Model description, Journal of Geophysical Research: Oceans, 125, e2019JC015913.  
 - Mower, R., Gutmann, E. D., Lundquist, J., Liston, G. E., and Rasmussen, S. (2023). Parallel SnowModel (v1.0): a parallel implementation of a Distributed Snow-Evolution Modeling System (SnowModel), Journal of Geoscientific Model Development.   
 ---      
