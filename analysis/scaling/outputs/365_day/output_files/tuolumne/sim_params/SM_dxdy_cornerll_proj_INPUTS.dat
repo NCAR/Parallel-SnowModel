@@ -1,0 +1,9 @@
+1
+
+100  100
+
+-119.67792  37.90134
+-119.33041  38.06012
+
++proj=utm +zone=11 +ellps=WGS84 +datum=WGS84 +units=m +no_defs
+

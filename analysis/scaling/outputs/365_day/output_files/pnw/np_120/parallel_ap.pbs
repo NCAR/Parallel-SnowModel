@@ -1,0 +1,111 @@
+#!/bin/bash
+#PBS -N sm_parallel_pnw_120
+#PBS -A UWAS0135
+#PBS -l walltime=12:00:00
+#PBS -q regular
+#PBS -j oe
+#PBS -k eod
+#PBS -m abe
+#PBS -M rossamower@ucar.edu
+#PBS -l select=30:ncpus=4:mpiprocs=4:ompthreads=1:mem=109GB
+#PBS -o sm_parallel_pnw_120.o
+
+### NOTE ###
+#### This submission script assumes absolute file path provided for "output_path_wo_assim" variable ####
+##### Processes 
+###### Load appropriate modules 
+###### Create directories in output directory to put bash script and output 
+###### Run SnowModel
+
+### set TMPDIR as recommended
+export TMPDIR=/glade/scratch/$USER/temp_serial
+mkdir -p $TMPDIR
+source /etc/profile.d/modules.sh
+module restore caf
+
+module load peak_memusage
+
+## set number of processors ##
+#NUM_PROC=16
+echo "submitted processes: ${NUM_PROC}"
+PROC_STRING="np_${NUM_PROC}"
+
+## find output file ##
+JOBNAME_FILE="${PBS_JOBNAME}.*"
+
+## make binary directory ##
+BINARY_DIR="outputs/wo_assim/${PROC_STRING}/binary/"
+mkdir -p $BINARY_DIR
+
+## replace output directory ##
+OUTPUT_FPATH=$(grep "output_path_wo_assim" snowmodel.par | grep -v !)
+sed -i "s#${OUTPUT_FPATH}#      output_path_wo_assim = ${BINARY_DIR}#g" snowmodel.par 
+
+## add . and sim_params directory##
+SIM_PARAMS="outputs/wo_assim/${PROC_STRING}/sim_params"
+mkdir -p $SIM_PARAMS
+
+## create new output file name and directory ##
+NEWOUTPUT="${SIM_PARAMS}/${PBS_JOBNAME}.out"
+## copy files to output_params##
+cp "./parallel_ap.pbs" $SIM_PARAMS
+cp "./topo_vege/NoAm_30m/SM_dxdy_cornerll_proj_INPUTS.dat" $SIM_PARAMS
+cp "./snowmodel.par" $SIM_PARAMS
+
+
+echo "--------  Start Parallel SnowModel Simulation --------"
+echo ""
+## Run the executable ##
+# time cafrun -np ${NUM_PROC} ./sm_parallel_scaling
+time cafrun -np ${NUM_PROC} peak_memusage.exe ./sm_parallel_scaling
+
+echo "--------  End Parallel SnowModel Simulation --------"
+echo ""
+
+## move output into binary directory ##
+mv $JOBNAME_FILE $NEWOUTPUT
+
+### clean output file by removing unneccessary lines ###
+## remove empty lines ##
+sed -i '/^$/d' $NEWOUTPUT
+## remove any line with "tag" ##
+sed -i '/tag/d' $NEWOUTPUT
+## remove any line with "match" ##
+sed -i '/match/d' $NEWOUTPUT
+## remove any line with "UCX" ##
+sed -i '/UCX/d' $NEWOUTPUT
+## remove any line with "WARN" ##
+sed -i '/WARN/d' $NEWOUTPUT
+## remove any line with start bracket ##
+sed -i '/\[/d' $NEWOUTPUT
+## remove any line with end bracket ##
+sed -i '/\]/d' $NEWOUTPUT
+## remove any line that starts with ed ##
+sed -i '/^ed/d' $NEWOUTPUT
+## remove any line that starts with hed ##
+sed -i '/^hed/d' $NEWOUTPUT
+## remove any line that starts with ched ##
+sed -i '/^ched/d' $NEWOUTPUT
+## remove any line that starts with tched ##
+sed -i '/^tched/d' $NEWOUTPUT
+## remove any line that starts with atched ##
+sed -i '/^atched/d' $NEWOUTPUT
+
+## remove any line that contains Over 1 ##
+# sed -i '/Over 1/d' $NEWOUTPUT
+# ## remove any line that contains in the Tsfc ##
+# sed -i '/in the Tsfc/d' $NEWOUTPUT
+# ## remove any line that contains usually means ##
+# sed -i '/usually means/d' $NEWOUTPUT
+# ## remove any line that contains atmopheric forcing ##
+# sed -i '/atmopheric forcing/d' $NEWOUTPUT
+# ## remove any line that contains in snowmodel.par is set too low ##
+# sed -i '/in snowmodel.par is set too low/d' $NEWOUTPUT
+# ## remove any line that contains Tsfc not converged ##
+# sed -i '/Tsfc not converged/d' $NEWOUTPUT
+# ## remove any line that contains 1 m ##
+# sed -i '/1 m/d' $NEWOUTPUT
+# ## remove any line that contains ZEROING OUT ##
+# sed -i '/ZEROING OUT/d' $NEWOUTPUT
+
+
