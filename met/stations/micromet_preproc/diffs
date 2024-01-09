@@ -1,0 +1,15 @@
+
+path1=/home/liston/snowmodel/micromet_preproc/
+path2=/home/liston/snowmodel/micromet_preproc/works2/
+
+filename1=preproc_MicroMet.f
+filename2=preproc_MicroMet.par
+
+echo IN $filename1
+diff $path1$filename1 $path2$filename1
+echo =============================================================
+
+echo IN $filename2
+diff $path1$filename2 $path2$filename2
+echo =============================================================
+

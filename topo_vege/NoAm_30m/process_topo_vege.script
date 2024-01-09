@@ -1,0 +1,160 @@
+#!/bin/bash
+
+#####################################################
+# This compiles and runs all of the scripts and
+# programs required to produce topo and vege
+# distributions required to run SnowModel.
+#####################################################
+
+#####################################################
+# Perform some cleanup steps.
+#####################################################
+
+rm -f topo_vege.ctl
+rm -f topo_vege.gdat
+
+rm -f process_data/1_topo/outputs/*
+rm -f process_data/2_vege/outputs/*
+
+#####################################################
+# Process the topo data.
+#####################################################
+
+cd process_data/1_topo/
+
+coords_flag=`head -1 ../../SM_dxdy_cornerll_proj_INPUTS.dat`
+
+if [[ $coords_flag -eq 1 ]]
+then
+
+  echo ' '
+  echo '----------------------------------------------'
+  echo ' IN /1_topo/1_find_subdomain_ll.f'
+  echo '----------------------------------------------'
+  gfortran -mcmodel=medium 1_find_subdomain_ll.f
+  ./a.out
+
+  echo ' '
+  echo '----------------------------------------------'
+  echo ' IN /1_topo/2_project.script'
+  echo '----------------------------------------------'
+  ./2_project.script
+
+  echo ' '
+  echo '----------------------------------------------'
+  echo ' IN /1_topo/3_find_corner_coords_proj.f'
+  echo '----------------------------------------------'
+  gfortran -mcmodel=medium 3_find_corner_coords_proj.f
+  ./a.out
+
+  echo ' '
+  echo '----------------------------------------------'
+  echo ' IN /1_topo/4_project_back_to_ll.script'
+  echo '----------------------------------------------'
+  ./4_project_back_to_ll.script
+
+  echo ' '
+  echo '----------------------------------------------'
+  echo ' IN /1_topo/5_find_subdomain_ll_final.f'
+  echo '----------------------------------------------'
+  gfortran -mcmodel=medium 5_find_subdomain_ll_final.f
+  ./a.out
+
+else
+
+  echo ' '
+  echo '----------------------------------------------'
+  echo ' IN /1_topo/A_write_coords_info.f'
+  echo '----------------------------------------------'
+  gfortran -mcmodel=medium A_write_coords_info.f
+  ./a.out
+
+  echo ' '
+  echo '----------------------------------------------'
+  echo ' IN /1_topo/B_project_back_to_ll.script'
+  echo '----------------------------------------------'
+  ./B_project_back_to_ll.script
+
+  echo ' '
+  echo '----------------------------------------------'
+  echo ' IN /1_topo/C_find_subdomain_ll_final.f'
+  echo '----------------------------------------------'
+  gfortran -mcmodel=medium C_find_subdomain_ll_final.f
+  ./a.out
+
+fi
+
+echo ' '
+echo '----------------------------------------------'
+echo ' IN /1_topo/6_find_length_scale.f'
+echo '----------------------------------------------'
+gfortran -mcmodel=medium 6_find_length_scale.f
+./a.out
+
+echo ' '
+echo '----------------------------------------------'
+echo ' IN /1_topo/7_mk_ll_tile_list.f'
+echo '----------------------------------------------'
+gfortran -mcmodel=medium 7_mk_ll_tile_list.f
+./a.out
+
+echo ' '
+echo '----------------------------------------------'
+echo ' IN /1_topo/8_mk_merge_script.script'
+echo '----------------------------------------------'
+./8_mk_merge_script.script
+
+echo ' '
+echo '----------------------------------------------'
+echo ' IN /1_topo/9_gdal_merge_tiles.script'
+echo '----------------------------------------------'
+./9_gdal_merge_tiles.script
+
+echo ' '
+echo '----------------------------------------------'
+echo ' IN /1_topo/10_gdal_ll_to_proj.script'
+echo '----------------------------------------------'
+./10_gdal_ll_to_proj.script
+
+echo ' '
+echo '----------------------------------------------'
+echo ' IN /1_topo/11_cleanup_tmp_topo_files.script'
+echo '----------------------------------------------'
+./11_cleanup_tmp_topo_files.script
+
+#####################################################
+# Process the vege data.
+#####################################################
+
+cd ../2_vege/
+
+echo ' '
+echo '----------------------------------------------'
+echo ' IN /2_vege/1_gdal_laea_to_proj.script'
+echo '----------------------------------------------'
+./1_gdal_laea_to_proj.script
+
+echo ' '
+echo '----------------------------------------------'
+echo ' IN /2_vege/2_cleanup_tmp_vege_files.script'
+echo '----------------------------------------------'
+./2_cleanup_tmp_vege_files.script
+
+#####################################################
+# Convert the .asc data files to a .gdat data file.
+#####################################################
+
+cd ../3_merge_topo_vege
+
+echo ' '
+echo '----------------------------------------------'
+echo ' IN /3_merge_topo_vege/1_merge_topo_vege.f'
+echo '----------------------------------------------'
+gfortran -mcmodel=medium 1_merge_topo_vege.f
+./a.out
+
+echo ' '
+echo '----------------------------------------------'
+echo ' IN /3_merge_topo_vege/2_cleanup_flt.script'
+echo '----------------------------------------------'
+./2_cleanup_flt.script

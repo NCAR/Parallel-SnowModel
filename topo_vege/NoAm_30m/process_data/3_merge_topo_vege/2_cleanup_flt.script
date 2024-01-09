@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Clean up the temporary topo and vege files that are no longer needed.
+rm ../1_topo/outputs/*.flt
+#rm ../1_topo/outputs/*.hdr
+rm ../2_vege/outputs/*.flt
+#rm ../2_vege/outputs/*.hdr
+

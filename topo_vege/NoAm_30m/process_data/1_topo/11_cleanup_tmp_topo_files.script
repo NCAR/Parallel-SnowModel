@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Clean up the temporary topo files that are no longer needed.
+rm outputs/*.tif
+

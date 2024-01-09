@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Pull the deltax, deltay, proj, and cropping coordinates.
+
+dx=`cat outputs/1_grid_increment.dat | awk '{print $1}'`
+dy=`cat outputs/1_grid_increment.dat | awk '{print $2}'`
+
+sm_proj_string=`cat outputs/1_proj_string.dat`
+
+cropping_coords=`cat outputs/3_cropping_coords.dat`
+
+# Reproject from lat-lon to the projection of interest.
+# Regrid to XX-meters, average the coincident grid cell values,
+# using "tap" to force a (0,0) origin, set the undef value,
+# overwrite existing output files.  Be sure and select the
+# appropriate interpolation scheme (like: -r near, average,
+# mode); look at the gdalwarp user page.  For classification
+# data (like 1, 2, 3, etc., I usually use 'mode', for
+# topography data I usually use 'average'.  Here you have to
+# modify the projection and dx and dy info.
+
+# Also do the cropping in this same command.  Crop; these
+# coordinates MUST be integer divisible by the grid increment.
+# The order convention is: [-te xmin ymin xmax ymax].
+
+gdalwarp -t_srs "$sm_proj_string" -tr $dx $dy -tap -r average -te $cropping_coords -dstnodata -9999.0 -of GTiff -overwrite outputs/9_merged_ll_tiles.tif outputs/10_topo_proj_cropped.tif
+ 
+# Save the outputs as .flt files.  The "--config GDAL_PAM_ENABLED NO"
+# command suppresses writing of .flt.aux.xml files, which we don't
+# need.
+
+gdal_translate -of ENVI -ot Float32 --config GDAL_PAM_ENABLED NO outputs/10_topo_proj_cropped.tif outputs/10_topo_proj_cropped.flt
+

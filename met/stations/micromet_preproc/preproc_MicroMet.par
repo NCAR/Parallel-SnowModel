@@ -1,0 +1,124 @@
+! preproc_MicroMet.par
+!
+! MicroMet preprocessor parameter input file.  Read
+!   preproc_MicroMet.f to get additional information regarding
+!   what exactly is required.
+!
+!   All comment lines start with a ! in the first position.
+!
+!   Blank lines are permitted.
+!
+!   All parameter statements start with the parameter name, followed
+!   by a space, followed by an =, followed by a space, followed by
+!   the actual value, with nothing after that.  These statements can
+!   have leading blanks, and must fit within 80 columns.
+!
+!   It deals with integer, real, and string input values.
+
+! PRINTING
+! input file name.
+! output file name, text
+! output file name, grads
+! print flag: 1=text, 2=grads, 3=both
+      infname = walton.dat
+      outfname_txt = preproc.dat
+      outfname_grads = preproc.gdat
+      print_flag = 3
+
+! STARTING INFO
+! model start year (YYYY), month (M or MM), day (D or DD),
+! hour (local time, must be 1): all integers
+      iyr_start = 2002
+      imo_start = 9
+      idy_start = 25
+      ihr_start = 1
+
+! ENDING INFO
+! model ending year (YYYY), month (M or MM), day (D or DD),
+! hour (local time, must be 0 or 24): all integers
+      iyr_end = 2003
+      imo_end = 6
+      idy_end = 4
+      ihr_end = 0
+
+! MISC INFO
+! undefined value, number of input file header lines
+      undef = -9999.0
+      iheader = 0
+      so_hem = 0.0
+
+! DEFINE THE ANNUAL Tmax AND Tmin HIGHS AND LOWS, IN DEGREES C.
+! annual hi Tmin, lo Tmin, hi Tmax, lo Tmax, and hourly max increment
+! check the air temperature field: 1=yes, 0=no
+      tair_check_flag = 1
+      Tmin_hi = -10.0
+      Tmin_lo = -30.0
+      Tmax_hi = 20.0
+      Tmax_lo = 15.0
+      Tair_hrly_maxinc = 5.0
+
+! DEFINE THE MAX AND MIN ALLOWED RELATIVE HUMIDITY, IN PERCENT.
+! check the rh field: 1=yes, 0=no
+      rh_check_flag = 1
+      RHmin = 5.0
+      RHmax = 100.0
+      RH_hrly_maxinc = 50.0
+
+! DEFINE THE MAX AND MIN ALLOWED WIND SPEED, IN M/S.
+! check the wind speed field: 1=yes, 0=no
+      wspd_check_flag = 1
+      WSPDmin = 0.1
+      WSPDmax = 30.0
+      WSPD_hrly_maxinc = 20.0
+
+! DEFINE THE MAX AND MIN ALLOWED WIND DIRECTION, IN DEGREES TRUE N.
+! check the wind direction field: 1=yes, 0=no
+      wdir_check_flag = 1
+      WDIRmin = 0.0
+      WDIRmax = 360.0
+      WDIR_hrly_maxinc = 180.0
+
+! DEFINE THE MAX AND MIN ALLOWED PRECIPITATION, IN MM/HR.
+! check the precipitation field: 1=yes, 0=no
+      prec_check_flag = 1
+      PRECmin = 0.0
+      PRECmax = 50.0
+      PREC_hrly_maxinc = 25.0
+
+! THE MAXIMUM ALLOWED LENGTH OF CONTINUOUS MISSING DATA, IN DAYS
+      max_fill_days = 10
+
+! THE MAXIMUM ALLOWED LENGTH OF MISSING DATA TO BE FILLED USING
+!   ARIMA (diurnal cycle, temperature) MODEL, IN DAYS
+!   We find a value of 3 to 6 days is reasonable to use.
+      max_arima_fill_days = 5
+
+! DEFINE WHETHER YOU WANT TO USE A DIURNAL-CYCLE INTERPOLATION
+!   OR A SIMPLE AVERAGING SCHEME TO FILL IN MISSING PERIODS THAT
+!   WERE NOT CAPTURED BY THE ARIMA PROCEDURE.  IF THIS IS DONE,
+!   EVERYTHING SHOULD BE FILLED IN EXCEPT MISSING SEGMENTS LONGER
+!   THAN max_fill_days: 0=don't do anything else, 1=diurnal cycle
+!   scheme, 2=simple averaging=flat lines across missing data
+!   segments.
+      fill_full_flag = 1
+
+! DEFINE WHETHER TO FILL THE MISSING DATA: 1=yes, 0=no
+      tair_fill_flag = 1
+      rh_fill_flag = 1
+      wspd_fill_flag = 1
+      wdir_fill_flag = 1
+      prec_fill_flag = 1
+
+! STATION INFORMATION
+!   These are provided to be compatible with MicroMet inputs.  If
+!   are not planning on using the resulting outputs with MicroMet,
+!   you can just input dummy values here.
+! station id number
+      id_stn = 111
+! x (easting) loc of station (meters)
+      x_loc = 2410.0
+! y (northing) loc of station (meters)
+      y_loc = 2116.0
+! station elevation (meters)
+      elev = 37.0
+

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Pull the projection information.
+
+sm_proj_string=`cat outputs/1_proj_string.dat`
+topo_proj_string=`cat ../../input_files_info/topo_proj_string.dat`
+
+# Here I am taking the SnowModel simulation domain projection
+# corner coords, and converting them back to ll coords.
+
+gdaltransform -s_srs "$sm_proj_string" -t_srs "$topo_proj_string" < outputs/3_cropping_coords_tmp.dat | awk '{printf "%.2f %.2f\n", $1, $2}' > outputs/4_subdomain_ll_corners_tmp.dat
+

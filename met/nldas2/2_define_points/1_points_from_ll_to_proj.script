@@ -1,0 +1,10 @@
+
+# Pull the SnowModel projection information from the topo-vege
+# processing.
+
+proj_string=`cat ../../../topo_vege/NoAm_30m/process_data/1_topo/outputs/1_proj_string.dat`
+
+# Convert the (re)analysis lon-lat coords to the SnowModel
+# simulation projection coords.
+
+gdaltransform -s_srs "+proj=latlong +datum=WGS84" -t_srs "$proj_string" < ../1_topo_lonlat/nldas2_ll.txt | awk '{printf "%.2f      %.2f\n", $1, $2}' > met_points_proj.dat

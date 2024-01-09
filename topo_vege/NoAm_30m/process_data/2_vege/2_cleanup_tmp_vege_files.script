@@ -1,0 +1,4 @@
+
+# Clean up the temporary vege files that are no longer needed.
+rm outputs/*.tif
+

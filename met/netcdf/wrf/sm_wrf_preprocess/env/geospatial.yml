@@ -1,0 +1,33 @@
+name: geospatial
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - pip
+  - curl
+  - requests
+  - numpy
+  - matplotlib
+  - cartopy
+  - jupyter
+  - jupyterlab
+  - netcdf4
+  - pandas
+  - geopandas
+  - scipy
+  - metpy
+  - siphon
+  - xarray
+  - pyproj
+  - h5py
+  - pygrib
+  - cfgrib
+  - pylint
+  - s3fs
+  - zarr
+  - rioxarray
+  - pyproj
+  - seaborn
+  - dask
+  - xesmf
+  - rasterio

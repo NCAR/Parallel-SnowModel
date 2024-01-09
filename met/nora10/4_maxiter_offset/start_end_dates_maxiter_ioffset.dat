@@ -1,0 +1,13 @@
+iyr_start           2000
+imo_start              9
+idy_start              1
+
+iyr_end             2003
+imo_end                8
+idy_end               31
+
+maxiter_3hrly       8760
+ioffset_3hrly      60392
+
+maxiter_daily       1095
+ioffset_daily       7549

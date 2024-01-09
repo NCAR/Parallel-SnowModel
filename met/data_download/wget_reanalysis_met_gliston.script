@@ -1,0 +1,60 @@
+
+# This wget script can be used to download Glen's different
+#   (re)analysis archives.
+
+# This is an anonymous ftp site.  So you should be able to
+#   get to it with:
+#   username = anonymous
+#   password = your complete email address (e.g.,
+#     glen.liston@colostate.edu)
+
+# If your system is not set up to send this as the default,
+#   then you might have to add the following to the wget
+#   command below:
+#   --user=anonymous --password=yourname@companyname.com
+
+# It puts the files in the directory following the "-P",
+#   and it puts everything after here:
+#   ftp://gliston.cira.colostate.edu/SnowModel/
+#   into that -P directory.
+
+# In this example, the directory /data5/wget_test/SnowModel/
+#   does not have to exist prior to running this script.
+#   The script will make the required directories that you
+#   have defined below.
+
+# This script can be run from anywhere, and it will put the
+#   data in the directory you define below.
+
+# The era5 download is about 1.2 TB.  This covers 10-90 N
+#   latitude on a 0.25 degree grid, and 1 Jan 1979 to present
+#   (within a few months).
+
+# The merra2 download is about 230 GB.  This covers 10-90 N
+#   latitude on a ~0.5 degree grid, and 1 Jan 1980 to present
+#   (within a few months).
+
+# The nldas2 download is about 260 GB.  This covers the
+#   lower 48 states on a 0.125 degree grid, and 1 Jan 1979
+#   to present (within a few months).
+
+# The nora10 download is about 375 GB.  This covers
+#   Scandinavia on a 0.1 degree grid, and 1 Sep 1957 to
+#   present (within a few months).
+
+# Each of these archives include 3-hourly and daily forcing
+#   data required to drive SnowModel (e.g., air temperature,
+#   relative humidiy, wind speed, wind direction, and
+#   precipitation).
+
+# Also included are GrADS control (.ctl) files that describe
+#   the dataset extents in space and time.
+
+#wget -r -nH --cut-dirs=1 -P /data5/wget_test/SnowModel/atmos_forcing/ ftp://gliston.cira.colostate.edu/SnowModel/atmos_forcing/era5/
+
+wget -r -nH --cut-dirs=1 -P /data5/wget_test/SnowModel/atmos_forcing/ ftp://gliston.cira.colostate.edu/SnowModel/atmos_forcing/merra2/
+
+#wget -r -nH --cut-dirs=1 -P /data5/wget_test/SnowModel/atmos_forcing/ ftp://gliston.cira.colostate.edu/SnowModel/atmos_forcing/nldas2/
+
+#wget -r -nH --cut-dirs=1 -P /data5/wget_test/SnowModel/atmos_forcing/ ftp://gliston.cira.colostate.edu/SnowModel/atmos_forcing/nora10/
+

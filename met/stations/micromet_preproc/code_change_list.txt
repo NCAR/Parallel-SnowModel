@@ -1,0 +1,42 @@
+15 Sep 2005
+Base version of MicroMet PreProcessor created.
+
+29 Sep 2005
+Corrected line 534 so if wdir is undef, 360 is not added to wdir.
+
+30 Jan 2006
+Modified some of the introductory comments to state that all of the
+variables (Tair, RH, wind speed, wind direction, and precipitation)
+are assumed to have diurnal cycles, and that this is used in the
+filling of missing data for all variables.  If it turns out that
+there is no diurnal cycle, this is okay too.
+
+30 Jan 2006
+Eliminated the need to have a valid data value for each variable
+during the first and last hour of the input data file.  If these
+data are undefined, the average of the closest (in time) 24 valid
+values are used to fill in the missing value.
+
+30 Jan 2006
+Corrected a problem in the main program where undefined values of
+rh, wind speed, and precipitation were set to zero.
+
+31 Jan 2006
+Modified arima/arima.progs.f (search "TESTING, Glen") used by
+preproc_MicroMet.f to eliminate a rare divide by zero.
+
+31 Jan 2006
+Implemented routines that fill missing data segments if Case B, C,
+and/or D occur (these used to be called Case 2, 3, and 4; but to
+avoid confusion with the data-filling Case 1, 2, and 3 procedures,
+the numbers were changed to letters; see the code introduction
+comments).  Whether this extra filling is done or not is controlled
+by a flag in the preproc_MicroMet.par file.  This filling is done
+two ways, one preserves diurnal cycles, the other uses averages (so
+you will get "flat" lines in the data for this case).
+
+11 Jun 2009
+Commented out the call to AMLST to avoid the warning given when
+compiling using cygwin (AMLST is not called with the print flags
+I am using).
+

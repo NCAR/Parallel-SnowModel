@@ -1,7 +1,7 @@
 ---  
 # SCALING ANALYSIS DOMAIN GENERATION  
 ---     
-![plot](./outputs/figs/speedup.jpg)
+![plot](./outputs/365_day/figs/speedup.jpg)
 
 ---   
   

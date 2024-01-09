@@ -1,0 +1,39 @@
+
+# This wget script can be used to download Glen's 1-arcsec
+#   North American topo-vege archive.
+
+# This is an anonymous ftp site.  So you should be able to
+#   get to it with:
+#   username = anonymous
+#   password = your complete email address (e.g.,
+#     glen.liston@colostate.edu)
+
+# If your system is not set up to send this as the default,
+#   then you might have to add the following to the wget
+#   command below:
+#   --user=anonymous --password=yourname@companyname.com
+
+# It puts the files in the directory following the "-P",
+#   and it puts everything after here:
+#   ftp://gliston.cira.colostate.edu/SnowModel/
+#   into that -P directory.
+
+# In this example, the directory /data5/wget_test/SnowModel/
+#   does not have to exist prior to running this script.
+#   The script will make the required directories that you
+#   have defined below.
+
+# This script can be run from anywhere, and it will put the
+#   data in the directory you define below.
+
+# The vege download is about 10 GB.
+# The topo download is about 200 GB.
+
+# I suggest running the vege download first, to confirm
+#   everything is working like you want it to (just because
+#   it is quicker).
+
+wget -r -nH --cut-dirs=1 -P /data5/wget_test/SnowModel/ ftp://gliston.cira.colostate.edu/SnowModel/landcover/
+
+#wget -r -nH --cut-dirs=1 -P /data5/wget_test/SnowModel/ ftp://gliston.cira.colostate.edu/SnowModel/topography/
+

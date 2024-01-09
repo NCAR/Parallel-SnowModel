@@ -1,0 +1,13 @@
+iyr_start           2017
+imo_start              9
+idy_start              1
+
+iyr_end             2018
+imo_end                8
+idy_end               31
+
+maxiter_3hrly       2920
+ioffset_3hrly     112982
+
+maxiter_daily        365
+ioffset_daily      14123

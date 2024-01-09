@@ -1,0 +1,8 @@
+pgf77 -o preproc_MicroMet arima/arima.progs.f preproc_MicroMet.f
+
+#gfortran -o preproc_MicroMet arima/arima.progs.f preproc_MicroMet.f
+#f77 -o preproc_MicroMet arima/arima.progs.o preproc_MicroMet.f
+#f77 -o preproc_MicroMet arima/arima.progs.f preproc_MicroMet.f
+
+rm preproc_MicroMet.o
+rm arima.progs.o

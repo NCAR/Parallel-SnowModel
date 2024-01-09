@@ -1,0 +1,16 @@
+ENVI
+description = {
+outputs/10_topo_proj_cropped.flt}
+samples = 13599
+lines   = 16003
+bands   = 1
+header offset = 0
+file type = ENVI Standard
+data type = 4
+interleave = bsq
+byte order = 0
+map info = {Lambert Conformal Conic, 1, 1, -2238800, 1776400, 100, 100}
+projection info = {4, 6370000, 6370000, 39.7000122070312, -98, 0, 0, 28, 50, Lambert Conformal Conic}
+coordinate system string = {PROJCS["unknown",GEOGCS["GCS_unknown",DATUM["D_unknown",SPHEROID["unknown",6370000.0,0.0]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Lambert_Conformal_Conic"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",-98.0],PARAMETER["Standard_Parallel_1",28.0],PARAMETER["Standard_Parallel_2",50.0],PARAMETER["Latitude_Of_Origin",39.7000122070312],UNIT["Meter",1.0]]}
+band names = {
+Band 1}

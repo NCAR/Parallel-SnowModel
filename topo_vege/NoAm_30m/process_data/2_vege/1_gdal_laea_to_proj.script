@@ -1,0 +1,36 @@
+
+# Pull the deltax, deltay, proj, and cropping coordinates.
+
+dx=`cat ../1_topo/outputs/1_grid_increment.dat | awk '{print $1}'`
+dy=`cat ../1_topo/outputs/1_grid_increment.dat | awk '{print $2}'`
+
+proj_string=`cat ../1_topo/outputs/1_proj_string.dat`
+
+cropping_coords=`cat ../1_topo/outputs/3_cropping_coords.dat`
+
+# Pull the vegetation input file name.
+
+vege_filename=`cat ../../input_files_info/vege_filename.dat`
+
+# Reproject from the source dataset LAEA projection to the
+# projection of interest.  Regrid to XX-meters, average the
+# coincident grid cell values, using "tap" to force a (0,0)
+# origin, set the undef value, overwrite existing output files.
+# Be sure and select the appropriate interpolation scheme
+# (like: -r near, average, mode); look at the gdalwarp user
+# page to help decide what to use.  For classification data
+# (like veg=1, 2, 3, etc.), I usually use 'mode', for spatially
+# continuous data (like topography=244.35m, etc.) I usually use
+# 'average'.
+
+# Also do the cropping in this same command.  Crop; these
+# coordinates must be integer divisible by the grid increment.
+
+gdalwarp -t_srs "$proj_string" -tr $dx $dy -tap -r mode -te $cropping_coords -of GTiff -overwrite $vege_filename outputs/1_vege_proj_cropped.tif
+
+# Save the outputs as .flt files.  The "--config GDAL_PAM_ENABLED NO"
+# command suppresses writing of .flt.aux.xml files, which we don't
+# need.
+
+gdal_translate -of ENVI -ot Float32 --config GDAL_PAM_ENABLED NO outputs/1_vege_proj_cropped.tif outputs/1_vege_proj_cropped.flt
+
