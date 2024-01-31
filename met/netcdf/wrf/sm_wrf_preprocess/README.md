@@ -15,8 +15,8 @@ sm_wrf_preprocess/
     - `user_inputs.py`
 - process_data/
     - `aggregation.py`  
-`process_vars.py`   
-`README.md`    
+- `process_vars.py`   
+- `README.md`    
 
 ## **REQUIREMENTS** 
 1. **Install Python Environment**
@@ -32,7 +32,7 @@ sm_wrf_preprocess/
     - For processing entire CONUS dataset **400GB** of memory has been previously used. Therefore, submitting this as a job on supercomputing resources is likely **required**!
 
 ## **LIMITATIONS**
-This workflow has been tested for 3-hrly CONUS Parallel SnowModel runs on specific computing infraestructure. Therefore, it will likely need to be adapted to the needs of the user. 
+This workflow has been tested for 3-hrly CONUS Parallel SnowModel runs on specific computing infrastructure. Therefore, it will likely need to be adapted to the needs of the user. 
 
 ## **MAINTAINERS** 
 Ross Mower rossamower@ucar.edu  
