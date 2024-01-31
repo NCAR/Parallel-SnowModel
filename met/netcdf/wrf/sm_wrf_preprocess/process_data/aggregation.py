@@ -26,25 +26,30 @@ class Output_T_P(object):
             hourly_str = '3_hrly/'
         else:
             hourly_str = 'daily/'
-        self.outputdir = output_dir + hourly_str + 'year/'
-        print(self.outputdir)
+        self.outputdir = output_dir
 
         self.toFile()
 
 
     def toFile(self):
         # # loop through months and output
-        for var in [self.varname]:
-            for item in self.yr_mo_lst:
-                ms = item[1]
-                yr = item[0]
-                print("%s-%s" % (yr,ms))
-                da_month = self.ds[var].sel(Time=slice("%s-%s" % (yr,ms),"%s-%s" % (yr,ms)))
-                da_month.to_dataset().to_netcdf(self.outputdir + yr + '/month/' + ms + '/' + var + '.nc',
-                                                encoding = {"Time":
-                                                            {'dtype':'float64',
-                                                             'units': 'hours since 1901-01-01 00:00:00',
-                                                             'calendar':'standard'}})
+
+        self.ds[self.varname].to_dataset().to_netcdf(self.outputdir + '/' + self.varname + '.nc',
+                                        encoding = {"Time":
+                                                    {'dtype':'float64',
+                                                     'units': 'hours since 1901-01-01 00:00:00',
+                                                     'calendar':'standard'}})
+        # for var in [self.varname]:
+        #     for item in self.yr_mo_lst:
+        #         ms = item[1]
+        #         yr = item[0]
+        #         print("%s-%s" % (yr,ms))
+        #         da_month = self.ds[var].sel(Time=slice("%s-%s" % (yr,ms),"%s-%s" % (yr,ms)))
+        #         da_month.to_dataset().to_netcdf(self.outputdir + yr + '/month/' + ms + '/' + var + '.nc',
+        #                                         encoding = {"Time":
+        #                                                     {'dtype':'float64',
+        #                                                      'units': 'hours since 1901-01-01 00:00:00',
+        #                                                      'calendar':'standard'}})
 
 class Output_RELH(object):
 
@@ -64,7 +69,7 @@ class Output_RELH(object):
             hourly_str = '3_hrly/'
         else:
             hourly_str = 'daily/'
-        self.outputdir = output_dir + hourly_str + 'year/'
+        self.outputdir = output_dir
 
 
         self.calcRELH()
@@ -102,27 +107,35 @@ class Output_RELH(object):
 
     def toFile(self):
         # # loop through months and output
-        for var in [self.varname]:
-            for item in self.yr_mo_lst:
-                ms = item[1]
-                yr = item[0]
-                print("%s-%s" % (yr,ms))
-                da_month = self.ds[var].sel(Time=slice("%s-%s" % (yr,ms),"%s-%s" % (yr,ms)))
-                da_month.to_dataset().to_netcdf(self.outputdir + yr + '/month/' + ms + '/' + var + '.nc',
-                                                encoding = {"Time":
-                                                            {'dtype':'float64',
-                                                             'units': 'hours since 1901-01-01 00:00:00',
-                                                             'calendar':'standard'}})
+
+        self.ds['RELH'].to_dataset().to_netcdf(self.outputdir + '/' + 'RELH' + '.nc',
+                                        encoding = {"Time":
+                                                    {'dtype':'float64',
+                                                     'units': 'hours since 1901-01-01 00:00:00',
+                                                     'calendar':'standard'}})
+
+        # for var in [self.varname]:
+        #     for item in self.yr_mo_lst:
+        #         ms = item[1]
+        #         yr = item[0]
+        #         print("%s-%s" % (yr,ms))
+        #         da_month = self.ds[var].sel(Time=slice("%s-%s" % (yr,ms),"%s-%s" % (yr,ms)))
+        #         da_month.to_dataset().to_netcdf(self.outputdir + yr + '/month/' + ms + '/' + var + '.nc',
+        #                                         encoding = {"Time":
+        #                                                     {'dtype':'float64',
+        #                                                      'units': 'hours since 1901-01-01 00:00:00',
+        #                                                      'calendar':'standard'}})
 
 class Output_wind(object):
 
-    def __init__(self,xr_U10,xr_V10,varname,yr_mo_lst,Hourly,output_dir):
+    def __init__(self,xr_U10,xr_V10,varname,yr_mo_lst,Hourly,output_dir,ctrl_fpath):
 
         self.ds = xr_U10
         self.ds_V10 = xr_V10
         self.varname = varname
         self.yr_mo_lst = yr_mo_lst
         self.Hourly = Hourly
+        self.ds_ctrl = xr.load_dataset(ctrl_fpath)
 
         ## create output base directory ##
         if self.Hourly == 1:
@@ -131,7 +144,7 @@ class Output_wind(object):
             hourly_str = '3_hrly/'
         else:
             hourly_str = 'daily/'
-        self.outputdir = output_dir + hourly_str + 'year/'
+        self.outputdir = output_dir
 
         self.calcwind()
         self.toFile()
@@ -177,20 +190,27 @@ class Output_wind(object):
 
         ## create 'wdir' array from dir_array
         self.ds['WDIR'] = (('Time','south_north','west_east'),dir_array)
+        # self.ds['WDIR_EREL'] = ((self.ds['WDIR'] - np.arcsin(self.ds_ctrl.SINALPHA[0,:,:])/(np.pi*2)*360) + 360) % 360
         self.ds = self.ds.drop(['WDEG','V_U'])
         print('Finished processing wind')
 
     def toFile(self):
         # # loop through months and output
         for var in ['WDIR','WSPD']:
-            for item in self.yr_mo_lst:
-                print(var)
-                ms = item[1]
-                yr = item[0]
-                print("%s-%s" % (yr,ms))
-                da_month = self.ds[var].sel(Time=slice("%s-%s" % (yr,ms),"%s-%s" % (yr,ms)))
-                da_month.to_dataset().to_netcdf(self.outputdir + yr + '/month/' + ms + '/' + var + '.nc',
-                                                encoding = {"Time":
-                                                            {'dtype':'float64',
-                                                             'units': 'hours since 1901-01-01 00:00:00',
-                                                             'calendar':'standard'}})
+            self.ds[var].to_dataset().to_netcdf(self.outputdir + '/'  + var + '.nc',
+                                                   encoding = {"Time":
+                                                              {'dtype':'float64',
+                                                              'units': 'hours since 1901-01-01 00:00:00',
+                                                              'calendar':'standard'}})
+        # for var in ['WDIR','WSPD']:
+        #     for item in self.yr_mo_lst:
+        #         print(var)
+        #         ms = item[1]
+        #         yr = item[0]
+        #         print("%s-%s" % (yr,ms))
+        #         da_month = self.ds[var].sel(Time=slice("%s-%s" % (yr,ms),"%s-%s" % (yr,ms)))
+        #         da_month.to_dataset().to_netcdf(self.outputdir + yr + '/month/' + ms + '/' + var + '.nc',
+        #                                         encoding = {"Time":
+        #                                                     {'dtype':'float64',
+        #                                                      'units': 'hours since 1901-01-01 00:00:00',
+        #                                                      'calendar':'standard'}})

@@ -63,7 +63,8 @@ The core components of SnowModel as seen through the primary submodules within E
 - Liston, G. E., & Elder, K. (2006a). A distributed snow-evolution modeling system (SnowModel). Journal of Hydrometeorology, 7(6), 1259-1276. 
 - Liston, G. E., & Elder, K. (2006b). A meteorological distribution system for high-resolution terrestrial modeling (MicroMet). Journal of Hydrometeorology, 7, 217-234.
 - Liston, G. E., Itkin, P., Stroeve, J., Tschudi, M., Stewart, J. S., Pedersen, S. H., Reinking, A. K., and Elder, K. (2020). A Lagrangian snow‐evolution system for sea‐ice applications (SnowModel‐LG): Part I—Model description, Journal of Geophysical Research: Oceans, 125, e2019JC015913.  
-- Mower, R., Gutmann, E. D., Lundquist, J., Liston, G. E., and Rasmussen, S. (2023). Parallel SnowModel (v1.0): a parallel implementation of a Distributed Snow-Evolution Modeling System (SnowModel), Journal of Geoscientific Model Development.   
+- Mower, R., Gutmann, E. D., Lundquist, J., Liston, G. E., and Rasmussen, S. (2023). Parallel SnowModel (v1.0): a parallel implementation of a Distributed Snow-Evolution Modeling System (SnowModel), Journal of Geoscientific Model Development.  
+- Rasmussen, R. M., Liu, C., Ikeda, K., Chen, F., Kim, J.-H., Schneider, T., Gochis, D., Dugger, A., and Viger, R.: Four-kilometer long-term regional hydroclimate reanalysis over the conterminous United States (CONUS), 1979-2020, Research Data Archive at the National Center for Atmospheric Research, Computational and Information Systems Laboratory [dataset], 10.5065/ZYY0-Y036, 2023. 
 ---      
 ## **Maintainers**   
 ---    
